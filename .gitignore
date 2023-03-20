@@ -107,3 +107,11 @@ dist
 cache/
 artifacts/
 typechain/
+
+.eslintignore
+.eslintrc.js
+.npmignore
+.prettierignore
+.prettierrc
+.solhint.json
+.solhintignore

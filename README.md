@@ -1,6 +1,6 @@
 # Install
 
-Run npm install
+npm install
 
 # Run tests
 
