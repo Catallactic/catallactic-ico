@@ -5,7 +5,7 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 // describe.skip
 describe("gasClickICO.1.Common.test", function () {
-	//const hre = require("hardhat");
+	const hre = require("hardhat");
 
 	let GasClickICO, ico: Contract;
 	let DemoToken, token: Contract;
@@ -40,6 +40,12 @@ describe("gasClickICO.1.Common.test", function () {
 	/********************************************************************************************************/
 	before(async() => {
 		console.log('-------- Starting Tests -------');
+	});
+
+	beforeEach(async() => {
+		//console.log('--------------------');
+		await hre.network.provider.send("hardhat_reset");
+
 		GasClickICO = await ethers.getContractFactory("GasClickICO");
 		ico = await GasClickICO.deploy();
 		await ico.deployed();
@@ -56,11 +62,6 @@ describe("gasClickICO.1.Common.test", function () {
 			let balance = await ethers.provider.getBalance(account.address);
 			console.log('%d - address: %s ; balance: %s', ++i, account.address, balance);
 		});
-	});
-
-	beforeEach(async() => {
-		//console.log('--------------------');
-		//await hre.network.provider.send("hardhat_reset")
 	});
 
 	afterEach(async() => {
@@ -159,9 +160,9 @@ describe("gasClickICO.1.Common.test", function () {
 		await expect(ico.connect(addr1).setMaxuUSDTransfer(100000)).to.be.revertedWith('Ownable: caller is not the owner');
 		await expect(ico.connect(addr1).setMinuUSDTransfer(10)).to.be.revertedWith('Ownable: caller is not the owner');
 
-		await expect(ico.connect(addr1).setHardCapuUSD(200_000_000_000)).to.be.revertedWith('Ownable: caller is not the owner');
+		await expect(ico.connect(addr1).setHardCapuUSD(300_000_000_000)).to.be.revertedWith('Ownable: caller is not the owner');
 		await expect(ico.connect(addr1).setSoftCapuUSD(50_000_000_000)).to.be.revertedWith('Ownable: caller is not the owner');
-		await expect(ico.connect(addr1).setPriceuUSD(0.02*10**6)).to.be.revertedWith('Ownable: caller is not the owner');
+		await expect(ico.connect(addr1).setPriceuUSD(0.03*10**6)).to.be.revertedWith('Ownable: caller is not the owner');
 		//await expect(ico.connect(addr1).setDynamicPrice(true)).to.be.revertedWith('Ownable: caller is not the owner');
 		await expect(ico.connect(addr1).setCrowdsaleStage(1)).to.be.revertedWith('Ownable: caller is not the owner');
 
@@ -191,15 +192,13 @@ describe("gasClickICO.1.Common.test", function () {
 
 		// HardCap
 		console.log('HardCap: ' + await ico.getHardCap());
+		await ico.setHardCapuUSD(200_000_000_000);
 		expect(await ico.getHardCap()).to.equal(200_000);
 		await ico.setHardCapuUSD(300_000_000_000);
 		expect(await ico.getHardCap()).to.equal(300_000);
-		await ico.setHardCapuUSD(200_000_000_000);
-		expect(await ico.getHardCap()).to.equal(200_000);
 
 		// SoftCap
 		console.log('SoftCap: ' + await ico.getSoftCap());
-		expect(await ico.getSoftCap()).to.equal(50_000);
 		await ico.setSoftCapuUSD(40_000_000_000);
 		expect(await ico.getSoftCap()).to.equal(40_000);
 		await ico.setSoftCapuUSD(50_000_000_000);
@@ -207,10 +206,10 @@ describe("gasClickICO.1.Common.test", function () {
 
 		// get ICO Price
 		console.log('price: ' + await ico.getPriceuUSD());
+		await ico.setPriceuUSD(BigInt(0.02*10**6));
 		expect(await ico.getPriceuUSD()).to.equal(BigInt(0.02*10**6));
 		await ico.setPriceuUSD(BigInt(0.03*10**6));
 		expect(await ico.getPriceuUSD()).to.equal(BigInt(0.03*10**6));
-		await ico.setPriceuUSD(BigInt(0.02*10**6));
 
 	});
 
@@ -281,18 +280,5 @@ describe("gasClickICO.1.Common.test", function () {
 		await ico.setTargetWalletAddress(addr1.address);
 		expect(await ico.getTargetWalletAddress()).to.equal(addr1.address, 'target wallet address should have changed to ' + addr1.address);
 	});
-
-	/********************************************************************************************************/
-	/************************************************** Destroy *********************************************/
-	/********************************************************************************************************/
-	/*it("Should be able to finalize", async() => {
-
-		//console.log("getWeiContributedBy1: " + await ico.getWeiContributedBy(addr1.address));
-		console.log("getInvestors: " + await ico.getInvestors());
-		console.log("getInvestorsCount: " + await ico.getInvestorsCount());
-
-	//	await ico.setCrowdsaleStage(0);
-		//await ico.finalize();
-	});*/
 
 });

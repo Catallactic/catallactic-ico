@@ -4,7 +4,7 @@ import { BigNumber, Contract } from "ethers";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 describe("gasClickICO.2.Coins.test", function () {
-	//const hre = require("hardhat");
+	const hre = require("hardhat");
 
 	let GasClickICO, ico: Contract;
 	let DemoToken, token: Contract;
@@ -39,6 +39,12 @@ describe("gasClickICO.2.Coins.test", function () {
 	/********************************************************************************************************/
 	before(async() => {
 		console.log('-------- Starting Tests -------');
+	});
+
+	beforeEach(async() => {
+		//console.log('--------------------');
+		await hre.network.provider.send("hardhat_reset");
+
 		GasClickICO = await ethers.getContractFactory("GasClickICO");
 		ico = await GasClickICO.deploy();
 		await ico.deployed();
@@ -56,21 +62,6 @@ describe("gasClickICO.2.Coins.test", function () {
 			console.log('%d - address: %s ; balance: %s', ++i, account.address, balance);
 		});
 
-		// uncomment to get real exchange values
-		/*let usdPerEther = async () => {
-			return fetch("https://api.coinbase.com/v2/exchange-rates?currency=ETH", { method: "GET", redirect: "follow" })
-				.then((response) => response.json())
-				.then((result) => {return(result.data.rates.USD)})
-				.catch((error) => {return(error)});
-		}
-		numUsdPerEther = await usdPerEther()*/
-		console.log('numUsdPerEther: ' + numUsdPerEther);
-
-	});
-
-	beforeEach(async() => {
-		//console.log('--------------------');
-		//await hre.network.provider.send("hardhat_reset")
 	});
 
 	afterEach(async() => {
@@ -201,13 +192,13 @@ describe("gasClickICO.2.Coins.test", function () {
 		for (let i = 0; i < investorsCount; i++) {
 			let uusdContributedBy = await ico.getuUSDToClaim(investors[i]);
 			console.log('usdContributedBy ' + uusdContributedBy);
-			expect(uusdContributedBy).to.equal(19999998, 'Investor USD contributed is wrong');
+			expect(uusdContributedBy).to.equal(9999999, 'Investor USD contributed is wrong');
 			//expect(uusdContributedBy).to.be.closeTo(BigNumber.from(10000000),'Investor USD contributed is wrong');
 		}
 
-		expect(await ico.getuUSDToClaim(addr1.address)).to.equal(19999998, 'Investor USD contributed is wrong');
-		expect(await ico.getuUSDToClaim(addr2.address)).to.equal(19999998, 'Investor USD contributed is wrong');
-		expect(await ico.getuUSDToClaim(addr3.address)).to.equal(19999998, 'Investor USD contributed is wrong');
+		expect(await ico.getuUSDToClaim(addr1.address)).to.equal(9999999, 'Investor USD contributed is wrong');
+		expect(await ico.getuUSDToClaim(addr2.address)).to.equal(9999999, 'Investor USD contributed is wrong');
+		expect(await ico.getuUSDToClaim(addr3.address)).to.equal(9999999, 'Investor USD contributed is wrong');
 	});
 
 	/********************************************************************************************************/
@@ -236,7 +227,7 @@ describe("gasClickICO.2.Coins.test", function () {
 		console.log("getuUSDToClaim: " + await ico.getuUSDToClaim(addr1.address));
 		await ico.setWhitelistuUSDThreshold(30 * 10**6);
 		await ico.unwhitelistUser(addr1.address);
-		await expect(testTransferCoin(addr1, 21)).to.be.revertedWith(ERRD_MUST_WHI);
+		await expect(testTransferCoin(addr1, 31)).to.be.revertedWith(ERRD_MUST_WHI);
 		await ico.whitelistUser(addr1.address);
 		await expect(testTransferCoin(addr1, 21)).not.to.be.reverted;
 
@@ -282,26 +273,34 @@ describe("gasClickICO.2.Coins.test", function () {
 		await ico.setMaxuUSDInvestment(130 * 10**6);
 		await expect(testTransferCoin(addr1, 11)).not.to.be.reverted;
 		await expect(testTransferCoin(addr1, 11)).not.to.be.reverted;
-		await expect(testTransferCoin(addr1, 40)).to.be.revertedWith(ERRD_INVT_HIG);
+		await expect(testTransferCoin(addr1, 80)).to.be.revertedWith(ERRD_INVT_HIG);
 		await ico.setMaxuUSDInvestment(10_001 * 10**6);
 		console.log("Max Investment is ok");
 	});
 
-	// beyond hard cap
 	it("Should not be able to deposit beyond caps", async() => {
 		await ico.setCrowdsaleStage(1);
 
-		await ico.setMaxuUSDTransfer(20_000_000 * 10**6);
-		await ico.setMaxuUSDInvestment(140_000_000 * 10**6);
-		await expect(testTransferCoin(addr1, 200_000)).to.be.revertedWith(ERRD_HARD_CAP);
+		await ico.setMaxuUSDTransfer(21 * 10**6);
+		await ico.setMaxuUSDInvestment(80 * 10**6);
+		await ico.setHardCapuUSD(100 * 10**6);
+		await expect(testTransferCoin(addr1, 20)).not.to.be.reverted;
+		await expect(testTransferCoin(addr1, 20)).not.to.be.reverted;
+		await expect(testTransferCoin(addr1, 20)).not.to.be.reverted;
+		await expect(testTransferCoin(addr2, 20)).not.to.be.reverted;
+		await expect(testTransferCoin(addr2, 20)).not.to.be.reverted;
+		await expect(testTransferCoin(addr2, 20)).to.be.revertedWith(ERRD_HARD_CAP);
 		await ico.setMaxuUSDTransfer(10_000 * 10**6);
 		await ico.setMaxuUSDInvestment(10_000 * 10**6);
 	});
 
-	it("Should updat ICO balance", async() => {
-		await expect(testTransferCoin(addr1, 10)).not.to.be.reverted;
-		await expect(testTransferCoin(addr2, 10)).not.to.be.reverted;
-		await expect(testTransferCoin(addr3, 10)).not.to.be.reverted;
+	it("Should update ICO balance", async() => {
+		await ico.setCrowdsaleStage(1);
+		await ico.setMinuUSDTransfer(10 * 10**6);
+
+		await expect(testTransferCoin(addr1, 11)).not.to.be.reverted;
+		await expect(testTransferCoin(addr2, 11)).not.to.be.reverted;
+		await expect(testTransferCoin(addr3, 11)).not.to.be.reverted;
 
 		let contributed1 = await ico.getContribution(addr1.address, "COIN");
 		let contributed2 = await ico.getContribution(addr2.address, "COIN");
@@ -369,49 +368,24 @@ describe("gasClickICO.2.Coins.test", function () {
 
 		expect(await ethers.provider.getBalance(ico.address)).to.equal(0);
 	});
-
-	/********************************************************************************************************/
-	/*********************************************** Withdraw ***********************************************/
-	/********************************************************************************************************/
-	it("Should be able to Withdraw Coins", async() => {
-
-		await ico.setCrowdsaleStage(1);
-
-		await ico.setMaxuUSDTransfer(20_000_000 * 10**6);
-		await ico.setMaxuUSDInvestment(140_000_000 * 10**6);
-
-		await ico.setTargetWalletAddress(liquidity.address);
-
-		await expect(testTransferCoin(addr1, 17000)).not.to.be.reverted;
-		await expect(testTransferCoin(addr2, 17000)).not.to.be.reverted;
-		await expect(testTransferCoin(addr3, 17000)).not.to.be.reverted;
-
-		await ico.setCrowdsaleStage(3);
-
-		// withdraw ether to wallets
-		let balanceOfICO = await ethers.provider.getBalance(ico.address);
-		await expect(await ico.withdraw("COIN", 100))
-			.to.changeEtherBalances([ico, liquidity], [balanceOfICO.mul(-1), balanceOfICO]);
-		expect(await ethers.provider.getBalance(ico.address)).to.equal(0);
-		expect(await ethers.provider.getBalance(token.address)).to.equal(0);
-
-		expect((await ico.getPaymentToken("COIN"))[4]).to.equal(0, 'Invested amount must be zero');		// uUSDInvested
-		expect((await ico.getPaymentToken("COIN"))[5]).to.equal(0, 'Invested amount must be zero');		// amountInvested			
-	});
 		
 	/********************************************************************************************************/
 	/************************************************ Claim *************************************************/
 	/********************************************************************************************************/
-		it("Should be able to claim Coins", async() => {
+		it("Should be able to Claim Coins", async() => {
 
 		// prepare test
 		await ico.setCrowdsaleStage(1);
 
+		await ico.setMaxuUSDTransfer(20_000_000 * 10**6);
+		await ico.setMaxuUSDInvestment(140_000_000 * 10**6);
+		await ico.setWhitelistuUSDThreshold(20_000_000 * 10**6);
+
 		await ico.setTokenAddress(token.address);
 
-		await expect(testTransferCoin(addr1, 10)).not.to.be.reverted;
-		await expect(testTransferCoin(addr2, 10)).not.to.be.reverted;
-		await expect(testTransferCoin(addr3, 10)).not.to.be.reverted;
+		await expect(testTransferCoin(addr1, 19000)).not.to.be.reverted;
+		await expect(testTransferCoin(addr2, 19000)).not.to.be.reverted;
+		await expect(testTransferCoin(addr3, 19000)).not.to.be.reverted;
 
 		await ico.setCrowdsaleStage(3);
 
@@ -457,11 +431,15 @@ describe("gasClickICO.2.Coins.test", function () {
 		// prepare test
 		await ico.setCrowdsaleStage(1);
 
+		await ico.setMaxuUSDTransfer(20_000_000 * 10**6);
+		await ico.setMaxuUSDInvestment(140_000_000 * 10**6);
+		await ico.setWhitelistuUSDThreshold(20_000_000 * 10**6);
+
 		await ico.setTokenAddress(token.address);
 
-		await expect(testTransferCoin(addr1, 10)).not.to.be.reverted;
-		await expect(testTransferCoin(addr2, 10)).not.to.be.reverted;
-		await expect(testTransferCoin(addr3, 10)).not.to.be.reverted;
+		await expect(testTransferCoin(addr1, 19000)).not.to.be.reverted;
+		await expect(testTransferCoin(addr2, 19000)).not.to.be.reverted;
+		await expect(testTransferCoin(addr3, 19000)).not.to.be.reverted;
 
 		await ico.setCrowdsaleStage(3);
 
@@ -504,5 +482,59 @@ describe("gasClickICO.2.Coins.test", function () {
 		expect(await ico.getContribution(addr3.address, 'COIN')).to.equal(0);
 		expect(await ico.getuUSDContribution(addr3.address, 'COIN')).to.equal(0);
 	});
+
+	/********************************************************************************************************/
+	/*********************************************** Withdraw ***********************************************/
+	/********************************************************************************************************/
+	it("Should be able to Withdraw Coins", async() => {
+
+		await ico.setCrowdsaleStage(1);
+
+		await ico.setMaxuUSDTransfer(20_000_000 * 10**6);
+		await ico.setMaxuUSDInvestment(140_000_000 * 10**6);
+		await ico.setWhitelistuUSDThreshold(20_000_000 * 10**6);
+
+		await ico.setTargetWalletAddress(liquidity.address);
+
+		await expect(testTransferCoin(addr1, 19000)).not.to.be.reverted;
+		await expect(testTransferCoin(addr2, 19000)).not.to.be.reverted;
+		await expect(testTransferCoin(addr3, 19000)).not.to.be.reverted;
+		
+		await ico.setCrowdsaleStage(3);
+
+		// withdraw ether to wallets
+		let balanceOfICO = await ethers.provider.getBalance(ico.address);
+		await expect(await ico.withdraw("COIN", 100))
+			.to.changeEtherBalances([ico, liquidity], [balanceOfICO.mul(-1), balanceOfICO]);
+		expect(await ethers.provider.getBalance(ico.address)).to.equal(0);
+		expect(await ethers.provider.getBalance(token.address)).to.equal(0);
+
+		expect((await ico.getPaymentToken("COIN"))[4]).to.equal(0, 'Invested amount must be zero');		// uUSDInvested
+		expect((await ico.getPaymentToken("COIN"))[5]).to.equal(0, 'Invested amount must be zero');		// amountInvested			
+	});
+
+	/********************************************************************************************************/
+	/************************************************* Finalize *********************************************/
+	/********************************************************************************************************/
+	/*it("Should be able to finalize", async() => {
+
+		await ico.setCrowdsaleStage(1);
+
+
+		let balanceOfOwner = await ethers.provider.getBalance(owner.address);
+		console.log("Owner " + owner.address + " balanceOfOwner " + balanceOfOwner);
+		expect(await ethers.provider.getBalance(ico.address)).to.equal(0);
+
+		await expect(testTransferCoin(addr1, 40)).not.to.be.reverted;
+
+		console.log("Finalizing");
+		await ico.setCrowdsaleStage(3);
+		await ico.finalize();
+		console.log("Finalized");
+
+		expect(await ethers.provider.getBalance(ico.address)).to.equal(0);
+		//expect(await ethers.provider.getBalance(owner.address)).to.equal(balanceOfOwner.add(40));
+
+	});*/
 
 });

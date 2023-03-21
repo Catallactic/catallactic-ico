@@ -4,6 +4,8 @@ import { BigNumber, Contract } from "ethers";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 describe("gasClickICO.3.Tokens.test", function () {
+	const hre = require("hardhat");
+
 	let GasClickICO, ico: Contract;
 	let DemoToken, token: Contract;
 	let FOO, foo: Contract;
@@ -38,6 +40,23 @@ describe("gasClickICO.3.Tokens.test", function () {
 	/********************************************************************************************************/
 	before(async() => {
 		console.log('-------- Starting Tests -------');
+
+		// uncomment to get real exchange values
+		/*let usdPerEther = async () => {
+			return fetch("https://api.coinbase.com/v2/exchange-rates?currency=ETH", { method: "GET", redirect: "follow" })
+				.then((response) => response.json())
+				.then((result) => {return(result.data.rates.USD)})
+				.catch((error) => {return(error)});
+		}
+		numUsdPerEther = await usdPerEther()
+		console.log('numUsdPerEther: ' + numUsdPerEther);*/
+
+	});
+
+	beforeEach(async() => {
+		//console.log('--------------------');
+		await hre.network.provider.send("hardhat_reset");
+
 		GasClickICO = await ethers.getContractFactory("GasClickICO");
 		ico = await GasClickICO.deploy();
 		await ico.deployed();
@@ -60,21 +79,7 @@ describe("gasClickICO.3.Tokens.test", function () {
 			console.log('%d - address: %s ; balance: %s', ++i, account.address, balance);
 		});
 
-		// uncomment to get real exchange values
-		/*let usdPerEther = async () => {
-			return fetch("https://api.coinbase.com/v2/exchange-rates?currency=ETH", { method: "GET", redirect: "follow" })
-				.then((response) => response.json())
-				.then((result) => {return(result.data.rates.USD)})
-				.catch((error) => {return(error)});
-		}
-		numUsdPerEther = await usdPerEther()*/
-		console.log('numUsdPerEther: ' + numUsdPerEther);
-
-	});
-
-	beforeEach(async() => {
-		//console.log('--------------------');
-		//await hardhat.network.provider.send("hardhat_reset")
+		
 	});
 
 	afterEach(async() => {
@@ -234,6 +239,13 @@ describe("gasClickICO.3.Tokens.test", function () {
 
 		await ico.setCrowdsaleStage(1);
 
+		// prepare test users
+		await ico.setPaymentToken("FOO", foo.address, foo.address, Math.floor(258.1*1e6), 18);
+		let amountToTransfer = ethers.utils.parseUnits("1000000", 18).toString();
+		await foo.transfer(addr1.address, amountToTransfer);
+		await foo.transfer(addr2.address, amountToTransfer);
+		await foo.transfer(addr3.address, amountToTransfer);
+
 		await expect(testTransferToken(addr1, 'FOO', 10)).not.to.be.reverted;
 		expect((await ico.getPaymentToken("FOO"))[4]).to.equal(10000000, 'Invested amount must be accounted');																			// uUSDInvested
 		expect((await ico.getPaymentToken("FOO"))[5]).to.equal(BigInt((1 * 38744672607516470).toString()), 'Invested amount must be accounted');		// amountInvested			
@@ -254,6 +266,13 @@ describe("gasClickICO.3.Tokens.test", function () {
 
 		await ico.setCrowdsaleStage(1);
 
+		// prepare test users
+		await ico.setPaymentToken("FOO", foo.address, foo.address, Math.floor(258.1*1e6), 18);
+		let amountToTransfer = ethers.utils.parseUnits("1000000", 18).toString();
+		await foo.transfer(addr1.address, amountToTransfer);
+		await foo.transfer(addr2.address, amountToTransfer);
+		await foo.transfer(addr3.address, amountToTransfer);
+
 		await expect(testTransferToken(addr1, 'FOO', 10)).not.to.be.reverted;
 		await expect(testTransferToken(addr2, 'FOO', 10)).not.to.be.reverted;
 		await expect(testTransferToken(addr3, 'FOO', 10)).not.to.be.reverted;
@@ -264,12 +283,12 @@ describe("gasClickICO.3.Tokens.test", function () {
 		for (let i = 0; i < investorsCount; i++) {
 			let uusdContributedBy = await ico.getuUSDToClaim(investors[i]);
 			console.log('usdContributedBy ' + uusdContributedBy);
-			expect(uusdContributedBy).to.equal(20 * 1e6, 'Investor USD contributed is wrong');
+			expect(uusdContributedBy).to.equal(10 * 1e6, 'Investor USD contributed is wrong');
 		}
 
-		expect(await ico.getuUSDToClaim(addr1.address)).to.equal(20 * 1e6, 'Investor USD contributed is wrong');
-		expect(await ico.getuUSDToClaim(addr2.address)).to.equal(20 * 1e6, 'Investor USD contributed is wrong');
-		expect(await ico.getuUSDToClaim(addr3.address)).to.equal(20 * 1e6, 'Investor USD contributed is wrong');
+		expect(await ico.getuUSDToClaim(addr1.address)).to.equal(10 * 1e6, 'Investor USD contributed is wrong');
+		expect(await ico.getuUSDToClaim(addr2.address)).to.equal(10 * 1e6, 'Investor USD contributed is wrong');
+		expect(await ico.getuUSDToClaim(addr3.address)).to.equal(10 * 1e6, 'Investor USD contributed is wrong');
 	});
 
 	/********************************************************************************************************/
@@ -279,6 +298,14 @@ describe("gasClickICO.3.Tokens.test", function () {
 	it("Should be able to deposit only if Ongoing", async() => {
 
 		await ico.setCrowdsaleStage(0);
+
+		// prepare test users
+		await ico.setPaymentToken("FOO", foo.address, foo.address, Math.floor(258.1*1e6), 18);
+		let amountToTransfer = ethers.utils.parseUnits("1000000", 18).toString();
+		await foo.transfer(addr1.address, amountToTransfer);
+		await foo.transfer(addr2.address, amountToTransfer);
+		await foo.transfer(addr3.address, amountToTransfer);
+
 		await expect(testTransferToken(addr1, 'FOO', 10)).to.be.revertedWith('ERRD_MUST_ONG');
 
 		// bug overflow -> workaround use BigInt
@@ -297,19 +324,33 @@ describe("gasClickICO.3.Tokens.test", function () {
 	it("Should be able to whitelist and unwhitelist", async() => {
 		await ico.setCrowdsaleStage(1);
 
+		// prepare test users
+		await ico.setPaymentToken("FOO", foo.address, foo.address, Math.floor(258.1*1e6), 18);
+		let amountToTransfer = ethers.utils.parseUnits("1000000", 18).toString();
+		await foo.transfer(addr1.address, amountToTransfer);
+		await foo.transfer(addr2.address, amountToTransfer);
+		await foo.transfer(addr3.address, amountToTransfer);
+
 		// whitelisting enabled, small transfer
 		console.log("getuUSDToClaim: " + await ico.getuUSDToClaim(addr1.address));
 		await ico.setWhitelistuUSDThreshold(30 * 10**6);
 		await ico.unwhitelistUser(addr1.address);
-		await expect(testTransferToken(addr1, 'FOO', 21)).to.be.revertedWith('ERRD_MUST_WHI');
+		await expect(testTransferToken(addr1, 'FOO', 31)).to.be.revertedWith('ERRD_MUST_WHI');
 		await ico.whitelistUser(addr1.address);
-		await expect(testTransferToken(addr1, 'FOO', 21)).not.to.be.reverted;
+		await expect(testTransferToken(addr1, 'FOO', 31)).not.to.be.reverted;
 
 		await ico.setWhitelistuUSDThreshold(10 * 10**12);
 	});
 
 	it("Should be able to blacklist and unblacklist", async() => {
 		await ico.setCrowdsaleStage(1);
+
+		// prepare test users
+		await ico.setPaymentToken("FOO", foo.address, foo.address, Math.floor(258.1*1e6), 18);
+		let amountToTransfer = ethers.utils.parseUnits("1000000", 18).toString();
+		await foo.transfer(addr1.address, amountToTransfer);
+		await foo.transfer(addr2.address, amountToTransfer);
+		await foo.transfer(addr3.address, amountToTransfer);
 
 		await ico.setUseBlacklist(false);
 		await ico.blacklistUser(addr1.address);
@@ -330,6 +371,13 @@ describe("gasClickICO.3.Tokens.test", function () {
 	it("Should respect transfer limits", async() => {
 		await ico.setCrowdsaleStage(1);
 
+		// prepare test users
+		await ico.setPaymentToken("FOO", foo.address, foo.address, Math.floor(258.1*1e6), 18);
+		let amountToTransfer = ethers.utils.parseUnits("1000000", 18).toString();
+		await foo.transfer(addr1.address, amountToTransfer);
+		await foo.transfer(addr2.address, amountToTransfer);
+		await foo.transfer(addr3.address, amountToTransfer);
+
 		await ico.setMinuUSDTransfer(9.9999 * 10**6);
 		await expect(testTransferToken(addr1, 'FOO', 9)).to.be.revertedWith('ERRD_TRAS_LOW');
 		await expect(testTransferToken(addr1, 'FOO', 10)).not.to.be.reverted;
@@ -341,7 +389,7 @@ describe("gasClickICO.3.Tokens.test", function () {
 		await ico.setMaxuUSDTransfer(10_000.001  * 10**6);
 
 		console.log("getuUSDToClaim: " + await ico.getuUSDToClaim(addr1.address));
-		await ico.setMaxuUSDInvestment(130 * 10**6);
+		await ico.setMaxuUSDInvestment(50 * 10**6);
 		await expect(testTransferToken(addr1, 'FOO', 10)).not.to.be.reverted;
 		await expect(testTransferToken(addr1, 'FOO', 10)).not.to.be.reverted;
 		await expect(testTransferToken(addr1, 'FOO', 40)).to.be.revertedWith('ERRD_INVT_HIG');
@@ -353,24 +401,45 @@ describe("gasClickICO.3.Tokens.test", function () {
 	it("Should not be able to deposit beyond caps", async() => {
 		await ico.setCrowdsaleStage(1);
 
-		await ico.setMaxuUSDTransfer(20_000_000 * 10**6);
-		await ico.setMaxuUSDInvestment(140_000_000 * 10**6);
-		await expect(testTransferToken(addr1, 'FOO', 20_000_000)).to.be.revertedWith('ERRD_HARD_CAP');
+		// prepare test users
+		await ico.setPaymentToken("FOO", foo.address, foo.address, Math.floor(258.1*1e6), 18);
+		let amountToTransfer = ethers.utils.parseUnits("1000000", 18).toString();
+		await foo.transfer(addr1.address, amountToTransfer);
+		await foo.transfer(addr2.address, amountToTransfer);
+		await foo.transfer(addr3.address, amountToTransfer);
+
+		await ico.setMaxuUSDTransfer(21 * 10**6);
+		await ico.setMaxuUSDInvestment(80 * 10**6);
+		await ico.setHardCapuUSD(100 * 10**6);
+		await expect(testTransferToken(addr1, 'FOO', 20)).not.to.be.reverted;
+		await expect(testTransferToken(addr1, 'FOO', 20)).not.to.be.reverted;
+		await expect(testTransferToken(addr1, 'FOO', 20)).not.to.be.reverted;
+		await expect(testTransferToken(addr2, 'FOO', 20)).not.to.be.reverted;
+		await expect(testTransferToken(addr2, 'FOO', 20)).to.be.revertedWith(ERRD_HARD_CAP);
 		await ico.setMaxuUSDTransfer(10_000 * 10**6);
 		await ico.setMaxuUSDInvestment(10_000 * 10**6);
 	});
 
 	it("Should update ICO balance", async() => {
+		await ico.setCrowdsaleStage(1);
+
+		// prepare test users
+		await ico.setPaymentToken("FOO", foo.address, foo.address, Math.floor(258.1*1e6), 18);
+		let amountToTransfer = ethers.utils.parseUnits("1000000", 18).toString();
+		await foo.transfer(addr1.address, amountToTransfer);
+		await foo.transfer(addr2.address, amountToTransfer);
+		await foo.transfer(addr3.address, amountToTransfer);
+
 		await expect(testTransferToken(addr1, 'FOO', 10)).not.to.be.reverted;
-		await expect(testTransferToken(addr1, 'FOO', 10)).not.to.be.reverted;
-		await expect(testTransferToken(addr1, 'FOO', 10)).not.to.be.reverted;
+		await expect(testTransferToken(addr2, 'FOO', 10)).not.to.be.reverted;
+		await expect(testTransferToken(addr3, 'FOO', 10)).not.to.be.reverted;
 
 		let contributed1 = await ico.getContribution(addr1.address, "FOO");
-		//expect(contributed1).to.equal(BigInt((await usdToTokenWithDecimals(140)).toString()));
+		expect(contributed1).to.equal(BigInt((await usdToTokenWithDecimals(10)).toString()));
 		let contributed2 = await ico.getContribution(addr2.address, "FOO");
-		expect(contributed2).to.equal(BigInt((await usdToTokenWithDecimals(20)).toString()));
+		expect(contributed2).to.equal(BigInt((await usdToTokenWithDecimals(10)).toString()));
 		let contributed3 = await ico.getContribution(addr3.address, "FOO");
-		expect(contributed3).to.equal(BigInt((await usdToTokenWithDecimals(20)).toString()));
+		expect(contributed3).to.equal(BigInt((await usdToTokenWithDecimals(10)).toString()));
 		let totalContributed = contributed1.add(contributed2).add(contributed3);
 		let balanceOfICO = await foo.balanceOf(ico.address);
 		console.log("balance " + balanceOfICO);
@@ -383,6 +452,13 @@ describe("gasClickICO.3.Tokens.test", function () {
 	it("Should be able to refund Tokens to investor", async() => {
 
 		await ico.setCrowdsaleStage(1);
+
+		// prepare test users
+		await ico.setPaymentToken("FOO", foo.address, foo.address, Math.floor(258.1*1e6), 18);
+		let amountToTransfer = ethers.utils.parseUnits("1000000", 18).toString();
+		await foo.transfer(addr1.address, amountToTransfer);
+		await foo.transfer(addr2.address, amountToTransfer);
+		await foo.transfer(addr3.address, amountToTransfer);
 
 		await expect(testTransferToken(addr1, 'FOO', 10)).not.to.be.reverted;
 		await expect(testTransferToken(addr2, 'FOO', 10)).not.to.be.reverted;
@@ -418,6 +494,13 @@ describe("gasClickICO.3.Tokens.test", function () {
 
 		await ico.setCrowdsaleStage(1);
 
+		// prepare test users
+		await ico.setPaymentToken("FOO", foo.address, foo.address, Math.floor(258.1*1e6), 18);
+		let amountToTransfer = ethers.utils.parseUnits("1000000", 18).toString();
+		await foo.transfer(addr1.address, amountToTransfer);
+		await foo.transfer(addr2.address, amountToTransfer);
+		await foo.transfer(addr3.address, amountToTransfer);
+
 		await expect(testTransferToken(addr1, 'FOO', 10)).not.to.be.reverted;
 		await expect(testTransferToken(addr2, 'FOO', 10)).not.to.be.reverted;
 		await expect(testTransferToken(addr3, 'FOO', 10)).not.to.be.reverted;
@@ -443,37 +526,6 @@ describe("gasClickICO.3.Tokens.test", function () {
 		expect(await ethers.provider.getBalance(ico.address)).to.equal(0);
 
 	});
-
-	/********************************************************************************************************/
-	/*********************************************** Withdraw ***********************************************/
-	/********************************************************************************************************/
-	it("Should be able to Withdraw Tokens", async() => {
-
-		await ico.setCrowdsaleStage(1);
-
-		await ico.setMaxuUSDTransfer(20_000_000 * 10**6);
-		await ico.setMaxuUSDInvestment(140_000_000 * 10**6);
-
-		await ico.setTargetWalletAddress(liquidity.address);
-
-		await expect(testTransferToken(addr1, 'FOO', 17000)).not.to.be.reverted;
-		await expect(testTransferToken(addr2, 'FOO', 17000)).not.to.be.reverted;
-		await expect(testTransferToken(addr3, 'FOO', 17000)).not.to.be.reverted;
-
-		await ico.setCrowdsaleStage(3);
-
-		// withdraw ether to wallets
-		let balanceOfICO = await foo.balanceOf(ico.address);
-		console.log("balanceOfICO " + balanceOfICO);
-		await expect(() => ico.withdraw("FOO", 100))
-			.to.changeTokenBalances(foo, [ico, liquidity], [balanceOfICO.mul(-1), balanceOfICO]);
-		expect(await foo.balanceOf(ico.address)).to.equal(0);
-		expect(await foo.balanceOf(token.address)).to.equal(0);
-
-		expect((await ico.getPaymentToken("FOO"))[4]).to.equal(0, 'Invested amount must be zero');		// uUSDInvested
-		expect((await ico.getPaymentToken("FOO"))[5]).to.equal(0, 'Invested amount must be zero');		// amountInvested			
-
-	});
 		
 	/********************************************************************************************************/
 	/************************************************ Claim *************************************************/
@@ -483,9 +535,20 @@ describe("gasClickICO.3.Tokens.test", function () {
 		// prepare test
 		await ico.setCrowdsaleStage(1);
 
-		await expect(testTransferToken(addr1, 'FOO', 10)).not.to.be.reverted;
-		await expect(testTransferToken(addr2, 'FOO', 10)).not.to.be.reverted;
-		await expect(testTransferToken(addr3, 'FOO', 10)).not.to.be.reverted;
+		await ico.setMaxuUSDTransfer(20_000_000 * 10**6);
+		await ico.setMaxuUSDInvestment(140_000_000 * 10**6);
+		await ico.setWhitelistuUSDThreshold(20_000_000 * 10**6);
+
+		// prepare test users
+		await ico.setPaymentToken("FOO", foo.address, foo.address, Math.floor(258.1*1e6), 18);
+		let amountToTransfer = ethers.utils.parseUnits("1000000", 18).toString();
+		await foo.transfer(addr1.address, amountToTransfer);
+		await foo.transfer(addr2.address, amountToTransfer);
+		await foo.transfer(addr3.address, amountToTransfer);
+
+		await expect(testTransferToken(addr1, 'FOO', 19000)).not.to.be.reverted;
+		await expect(testTransferToken(addr2, 'FOO', 19000)).not.to.be.reverted;
+		await expect(testTransferToken(addr3, 'FOO', 19000)).not.to.be.reverted;
 
 		await ico.setTokenAddress(token.address);
 
@@ -531,9 +594,20 @@ describe("gasClickICO.3.Tokens.test", function () {
 		// prepare test
 		await ico.setCrowdsaleStage(1);
 
-		await expect(testTransferToken(addr1, 'FOO', 10)).not.to.be.reverted;
-		await expect(testTransferToken(addr2, 'FOO', 10)).not.to.be.reverted;
-		await expect(testTransferToken(addr3, 'FOO', 10)).not.to.be.reverted;
+		await ico.setMaxuUSDTransfer(20_000_000 * 10**6);
+		await ico.setMaxuUSDInvestment(140_000_000 * 10**6);
+		await ico.setWhitelistuUSDThreshold(20_000_000 * 10**6);
+
+		// prepare test users
+		await ico.setPaymentToken("FOO", foo.address, foo.address, Math.floor(258.1*1e6), 18);
+		let amountToTransfer = ethers.utils.parseUnits("1000000", 18).toString();
+		await foo.transfer(addr1.address, amountToTransfer);
+		await foo.transfer(addr2.address, amountToTransfer);
+		await foo.transfer(addr3.address, amountToTransfer);
+
+		await expect(testTransferToken(addr1, 'FOO', 19000)).not.to.be.reverted;
+		await expect(testTransferToken(addr2, 'FOO', 19000)).not.to.be.reverted;
+		await expect(testTransferToken(addr3, 'FOO', 19000)).not.to.be.reverted;
 
 		await ico.setTokenAddress(token.address);
 
@@ -577,6 +651,45 @@ describe("gasClickICO.3.Tokens.test", function () {
 		expect(await ico.getuUSDToClaim(addr3.address)).to.equal(0);
 		expect(await ico.getContribution(addr3.address, 'FOO')).to.equal(0);
 		expect(await ico.getuUSDContribution(addr3.address, 'FOO')).to.equal(0);
+	});
+
+	/********************************************************************************************************/
+	/*********************************************** Withdraw ***********************************************/
+	/********************************************************************************************************/
+	it("Should be able to Withdraw Tokens", async() => {
+
+		await ico.setCrowdsaleStage(1);
+
+		// prepare test users
+		await ico.setPaymentToken("FOO", foo.address, foo.address, Math.floor(258.1*1e6), 18);
+		let amountToTransfer = ethers.utils.parseUnits("1000000", 18).toString();
+		await foo.transfer(addr1.address, amountToTransfer);
+		await foo.transfer(addr2.address, amountToTransfer);
+		await foo.transfer(addr3.address, amountToTransfer);
+
+		await ico.setMaxuUSDTransfer(20_000_000 * 10**6);
+		await ico.setMaxuUSDInvestment(140_000_000 * 10**6);
+		await ico.setWhitelistuUSDThreshold(20_000_000 * 10**6);
+
+		await ico.setTargetWalletAddress(liquidity.address);
+
+		await expect(testTransferToken(addr1, 'FOO', 19000)).not.to.be.reverted;
+		await expect(testTransferToken(addr2, 'FOO', 19000)).not.to.be.reverted;
+		await expect(testTransferToken(addr3, 'FOO', 19000)).not.to.be.reverted;
+
+		await ico.setCrowdsaleStage(3);
+
+		// withdraw ether to wallets
+		let balanceOfICO = await foo.balanceOf(ico.address);
+		console.log("balanceOfICO " + balanceOfICO);
+		await expect(() => ico.withdraw("FOO", 100))
+			.to.changeTokenBalances(foo, [ico, liquidity], [balanceOfICO.mul(-1), balanceOfICO]);
+		expect(await foo.balanceOf(ico.address)).to.equal(0);
+		expect(await foo.balanceOf(token.address)).to.equal(0);
+
+		expect((await ico.getPaymentToken("FOO"))[4]).to.equal(0, 'Invested amount must be zero');		// uUSDInvested
+		expect((await ico.getPaymentToken("FOO"))[5]).to.equal(0, 'Invested amount must be zero');		// amountInvested			
+
 	});
 
 });
