@@ -160,14 +160,16 @@ describe("gasClickICO.1.Common.test", function () {
 		await expect(ico.connect(addr1).setMaxuUSDTransfer(100000)).to.be.revertedWith('Ownable: caller is not the owner');
 		await expect(ico.connect(addr1).setMinuUSDTransfer(10)).to.be.revertedWith('Ownable: caller is not the owner');
 
+		await expect(ico.connect(addr1).setCrowdsaleStage(1)).to.be.revertedWith('Ownable: caller is not the owner');
 		await expect(ico.connect(addr1).setHardCapuUSD(300_000_000_000)).to.be.revertedWith('Ownable: caller is not the owner');
 		await expect(ico.connect(addr1).setSoftCapuUSD(50_000_000_000)).to.be.revertedWith('Ownable: caller is not the owner');
 		await expect(ico.connect(addr1).setPriceuUSD(0.03*10**6)).to.be.revertedWith('Ownable: caller is not the owner');
-		//await expect(ico.connect(addr1).setDynamicPrice(true)).to.be.revertedWith('Ownable: caller is not the owner');
-		await expect(ico.connect(addr1).setCrowdsaleStage(1)).to.be.revertedWith('Ownable: caller is not the owner');
+		await expect(ico.connect(addr1).setDynamicPrice(true)).to.be.revertedWith('Ownable: caller is not the owner');
+		await expect(ico.connect(addr1).setPaymentToken("COIN", ico.address, "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", Math.floor(1100*1e6), 18)).to.be.revertedWith('Ownable: caller is not the owner');
+		await expect(ico.connect(addr1).deletePaymentToken('DOGE', 2)).to.be.revertedWith('Ownable: caller is not the owner');
 
-		await expect(ico.connect(addr1).refundAll()).to.be.revertedWith('Ownable: caller is not the owner');
 		await expect(ico.connect(addr1).setTokenAddress(addr1.address)).to.be.revertedWith('Ownable: caller is not the owner');
+		await expect(ico.connect(addr1).refundAll()).to.be.revertedWith('Ownable: caller is not the owner');
 		await expect(ico.connect(addr1).setTargetWalletAddress(addr1.address)).to.be.revertedWith('Ownable: caller is not the owner');
 		await expect(ico.connect(addr1).claimAll()).to.be.revertedWith('Ownable: caller is not the owner');
 		await expect(ico.connect(addr1).withdraw('USDT', 100)).to.be.revertedWith('Ownable: caller is not the owner');
