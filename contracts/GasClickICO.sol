@@ -220,14 +220,6 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		require(contributions[msg.sender].uUSDToPay +_uUSDAmount <= maxuUSDInvestment, "ERRD_INVT_HIG");																							// total invested amount too high
 		require(_uUSDAmount + totaluUSDTInvested < HARD_CAP_uUSD, "ERRD_HARD_CAP");																																		// amount higher than available
 
-		// move tokens if tokens investment
-		if (keccak256(bytes(_symbol)) != keccak256(bytes("COIN"))) {
-			//console.log("ICO - getting from COIN: ", _symbol, _rawAmountWitDecimals);
-			//console.log("ICO - investor allowance: ", IERC20(paymentTokens[_symbol].ptTokenAddress).allowance(msg.sender, address(this)));
-			require(IERC20(paymentTokens[_symbol].ptTokenAddress).allowance(msg.sender, address(this)) >= _rawAmountWitDecimals, "ERRD_ALLO_LOW");				// insuffient allowance
-			IERC20(paymentTokens[_symbol].ptTokenAddress).safeTransferFrom(msg.sender, address(this), _rawAmountWitDecimals);
-		}
-
 		// add investor
 		if(!contributions[msg.sender].known) {
 			investors.push(msg.sender);
@@ -249,6 +241,15 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		totaluUSDTInvested += _uUSDAmount;										// lifecycle
 
 		emit FundsReceived(msg.sender, _symbol, _rawAmountWitDecimals);
+
+		// move tokens if tokens investment
+		if (keccak256(bytes(_symbol)) != keccak256(bytes("COIN"))) {
+			//console.log("ICO - getting from COIN: ", _symbol, _rawAmountWitDecimals);
+			//console.log("ICO - investor allowance: ", IERC20(paymentTokens[_symbol].ptTokenAddress).allowance(msg.sender, address(this)));
+			require(IERC20(paymentTokens[_symbol].ptTokenAddress).allowance(msg.sender, address(this)) >= _rawAmountWitDecimals, "ERRD_ALLO_LOW");				// insuffient allowance
+			IERC20(paymentTokens[_symbol].ptTokenAddress).safeTransferFrom(msg.sender, address(this), _rawAmountWitDecimals);
+		}
+
 	}
 	event FundsReceived (address _backer, string symbol, uint _amount);
 
@@ -327,9 +328,9 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 
 		// do claim
 		if(claimed > 0) {
-			IERC20(tokenAddress).safeTransferFrom(owner(), investor, claimed);
-
 			emit FundsClaimed(investor, claimed);
+
+			IERC20(tokenAddress).safeTransferFrom(owner(), investor, claimed);
 		}
 	}
 	event FundsClaimed(address _backer, uint _amount);
