@@ -17,7 +17,7 @@
  * 
  */
  // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity 0.8.19;
 
 import "./GasClickAntiWhale.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
@@ -377,15 +377,6 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 	}
 	function getTargetWalletAddress() external view returns (address) {
 		return targetWalletAddress;
-	}
-
-	/********************************************************************************************************/
-	/************************************************* Finalize *********************************************/
-	/********************************************************************************************************/
-	function finalize() external onlyOwner {
-		require(stage == CrowdsaleStage.Finished);
-		selfdestruct(payable(owner()));
-		
 	}
 
 }
