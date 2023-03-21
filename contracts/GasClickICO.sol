@@ -142,9 +142,6 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 
 	// price update
 	function getUUSD_PER_TOKEN(string calldata _symbol) external view returns (uint256) {
-		//console.log("ICO - price for: %s", _symbol);
-		require(paymentTokens[_symbol].ptPriceFeed != address(0));
-
 		AggregatorV3Interface currencyToUsdPriceFeed = AggregatorV3Interface(paymentTokens[_symbol].ptPriceFeed);
 		(,int256 answer,,,) = currencyToUsdPriceFeed.latestRoundData();
 		return(uint256(answer) * 10**6 / 10**currencyToUsdPriceFeed.decimals());
@@ -195,11 +192,11 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 	fallback() external payable {
 		if(msg.value > 0) depositWithuUSD("COIN", msg.value);																			// exclude unwanted wallet calls
 	}
-	function depositTokens(string memory _symbol, uint256 _rawAmountWitDecimals) external {
+	function depositTokens(string calldata _symbol, uint256 _rawAmountWitDecimals) external nonReentrant {
 		depositWithuUSD(_symbol, _rawAmountWitDecimals);
 	}
 
-	function depositWithuUSD(string memory _symbol, uint256 _rawAmountWitDecimals) internal nonReentrant {
+	function depositWithuUSD(string memory _symbol, uint256 _rawAmountWitDecimals) internal {
 		if(!dynamicPrice || paymentTokens[_symbol].ptPriceFeed == address(0)) {
 			deposit(_symbol, _rawAmountWitDecimals, _rawAmountWitDecimals * paymentTokens[_symbol].ptUUSD_PER_TOKEN / 10**paymentTokens[_symbol].ptDecimals);
 		} else {
@@ -262,7 +259,8 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		refundInvestor(msg.sender);
 	}
 	function refundAll() external onlyOwner {
-		for (uint i = 0; i < investors.length; i++) {
+		uint investorsLength = investors.length;
+		for (uint i = 0; i < investorsLength; i++) {
 			refundInvestor(investors[i]);
 		}
 	}
@@ -273,12 +271,16 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		uint256 uUSDToPay = contributions[investor].uUSDToPay;
 		require(uUSDToPay > 0, "ERRR_ZERO_REF");																																																			// Nothing to refund
 
-		for (uint i = 0; i < paymentSymbols.length; i++) {
+		uint paymentSymbolsLength = paymentSymbols.length;
+		for (uint i = 0; i < paymentSymbolsLength; i++) {
 			uint256 rawAmount = contributions[investor].conts[paymentSymbols[i]].cAmountInvested;
 
+			// clear variables
 			contributions[investor].conts[paymentSymbols[i]].cAmountInvested = 0;
 			contributions[investor].conts[paymentSymbols[i]].cuUSDInvested = 0;
 			contributions[investor].uUSDToPay = 0;
+
+			// do refund
 			if (rawAmount > 0) {
 				if (keccak256(bytes(paymentSymbols[i])) == keccak256(bytes("COIN"))) {
 					(bool success, ) = payable(investor).call{ value: rawAmount }("");
@@ -290,8 +292,6 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 			}
 
 		}
-		//delete contributions[investor];
-		contributions[investor].known = true;
 
 		emit FundsRefunded(investor, uUSDToPay);
 	}
@@ -304,7 +304,8 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		claimInvestor(msg.sender);
 	}
 	function claimAll() external onlyOwner {
-		for (uint i = 0; i < investors.length; i++) {
+		uint investorsLength = investors.length;
+		for (uint i = 0; i < investorsLength; i++) {
 			claimInvestor(investors[i]);
 		}
 	}
@@ -315,14 +316,16 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		require(tokenAddress != address(0x0), "ERRC_MISS_TOK");																																												// Provide Token
 
 		uint claimed = contributions[investor].uUSDToPay * 10**18 / uUSDT_PER_TOKEN;
-		for (uint i = 0; i < paymentSymbols.length; i++) {
+
+		// clear variables
+		uint paymentSymbolsLength = paymentSymbols.length;
+		for (uint i = 0; i < paymentSymbolsLength; i++) {
 			contributions[investor].conts[paymentSymbols[i]].cAmountInvested = 0;
 			contributions[investor].conts[paymentSymbols[i]].cuUSDInvested = 0;
 			contributions[investor].uUSDToPay = 0;
 		}
-		//delete contributions[investor];
-		contributions[investor].known = true;
 
+		// do claim
 		if(claimed > 0) {
 			IERC20(tokenAddress).safeTransferFrom(owner(), investor, claimed);
 
