@@ -40,14 +40,14 @@ describe("gasClickICO.1.Common.test", function () {
 	/********************************************************************************************************/
 	before(async() => {
 		console.log('-------- Starting Tests -------');
-    GasClickICO = await ethers.getContractFactory("GasClickICO");
-    ico = await GasClickICO.deploy();
+		GasClickICO = await ethers.getContractFactory("GasClickICO");
+		ico = await GasClickICO.deploy();
 		await ico.deployed();
 		await ico.setPaymentToken("COIN", ico.address, "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", Math.floor(1100*1e6), 18);
 		console.log("deployed ICO:" + ico.address);
 
-    DemoToken = await ethers.getContractFactory("DemoToken");
-    token = await DemoToken.deploy();
+		DemoToken = await ethers.getContractFactory("DemoToken");
+		token = await DemoToken.deploy();
 		await token.deployed();
 		console.log("deployed Token:" + token.address);
 

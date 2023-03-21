@@ -27,33 +27,33 @@ import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 //import "hardhat/console.sol";
 
 contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
-  using SafeERC20 for IERC20;
+	using SafeERC20 for IERC20;
 
 	/********************************************************************************************************/
 	/************************************************* Lifecycle ********************************************/
 	/********************************************************************************************************/
-  // Crowdsale Stage
-  function getCrowdsaleStage() external view returns (CrowdsaleStage) {
-    return stage;
-  }
+	// Crowdsale Stage
+	function getCrowdsaleStage() external view returns (CrowdsaleStage) {
+		return stage;
+	}
 	enum CrowdsaleStage {
 		NotStarted,
 		Ongoing,
 		OnHold,
 		Finished
 	}
-  CrowdsaleStage private stage = CrowdsaleStage.NotStarted;
-  function setCrowdsaleStage(uint _stage) external onlyOwner {
-    if(uint(CrowdsaleStage.NotStarted) == _stage) {							// 0
-      stage = CrowdsaleStage.NotStarted;
-    } else if (uint(CrowdsaleStage.Ongoing) == _stage) {				// 1
-      stage = CrowdsaleStage.Ongoing;
-    } else if (uint(CrowdsaleStage.OnHold) == _stage) {					// 2
-      stage = CrowdsaleStage.OnHold;
-    } else if (uint(CrowdsaleStage.Finished) == _stage) {				// 3
-      stage = CrowdsaleStage.Finished;
-    }
-  }
+	CrowdsaleStage private stage = CrowdsaleStage.NotStarted;
+	function setCrowdsaleStage(uint _stage) external onlyOwner {
+		if(uint(CrowdsaleStage.NotStarted) == _stage) {							// 0
+			stage = CrowdsaleStage.NotStarted;
+		} else if (uint(CrowdsaleStage.Ongoing) == _stage) {				// 1
+			stage = CrowdsaleStage.Ongoing;
+		} else if (uint(CrowdsaleStage.OnHold) == _stage) {					// 2
+			stage = CrowdsaleStage.OnHold;
+		} else if (uint(CrowdsaleStage.Finished) == _stage) {				// 3
+			stage = CrowdsaleStage.Finished;
+		}
+	}
 
 	/********************************************************************************************************/
 	/*********************************************** Supplies ***********************************************/
@@ -61,41 +61,41 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 	// Supplies
 	uint256 private HARD_CAP_uUSD = 200_000_000_000;
 	function getHardCap() external view returns (uint256) {
-    return HARD_CAP_uUSD / 10**6;
-  }
+		return HARD_CAP_uUSD / 10**6;
+	}
 	function setHardCapuUSD(uint256 _hardCap) external onlyOwner {
 		HARD_CAP_uUSD = _hardCap;
 	}
 
 	uint256 private SOFT_CAP_uUSD = 50_000_000_000;
 	function getSoftCap() external view returns (uint256) {
-    return SOFT_CAP_uUSD / 10**6;
-  }
+		return SOFT_CAP_uUSD / 10**6;
+	}
 	function setSoftCapuUSD(uint256 _softCap) external onlyOwner {
 		SOFT_CAP_uUSD = _softCap;
 	}
 
-  uint256 private totaluUSDTInvested = 0;
-  function getTotaluUSDInvested() external view returns (uint256) {
-    return totaluUSDTInvested;
-  }	
+	uint256 private totaluUSDTInvested = 0;
+	function getTotaluUSDInvested() external view returns (uint256) {
+		return totaluUSDTInvested;
+	}	
 
 	// ICO Price
 	uint256 private uUSDT_PER_TOKEN = 0.02*10**6;
 	function getPriceuUSD() external view returns (uint256) {
-    return uUSDT_PER_TOKEN;
-  }
+		return uUSDT_PER_TOKEN;
+	}
 	function setPriceuUSD(uint256 _uusd_per_token) external onlyOwner {
 		uUSDT_PER_TOKEN = _uusd_per_token;
 	}
 	
 	bool dynamicPrice = false;
 	function gettDynamicPrice() external view returns(bool) {
-    return dynamicPrice;
-  }
-  function setDynamicPrice(bool _dynamicPrice) external onlyOwner {
+		return dynamicPrice;
+	}
+	function setDynamicPrice(bool _dynamicPrice) external onlyOwner {
 		dynamicPrice = _dynamicPrice;
-  }
+	}
 
 	/********************************************************************************************************/
 	/******************************************* Payment Tokens *********************************************/
@@ -105,8 +105,8 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 	// Payment Tokens
 	string[] private paymentSymbols;
 	function getPaymentSymbols() external view returns (string[] memory) {
-    return paymentSymbols;
-  }
+		return paymentSymbols;
+	}
 	mapping (string => PaymentToken) paymentTokens;
 	struct PaymentToken {
 		address ptTokenAddress;
@@ -117,28 +117,28 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		uint256 ptAmountInvested;
 	}
 	function getPaymentToken(string calldata _symbol) external view returns(PaymentToken memory) {
-    return paymentTokens[_symbol];
-  }
+		return paymentTokens[_symbol];
+	}
 	function setPaymentToken(string calldata _symbol, address _tokenAddress, address _priceFeed, uint256 _uUSDPerTokens, uint8 _decimals) external onlyOwner {
 		if (paymentTokens[_symbol].ptDecimals == 0) {
 			paymentSymbols.push(_symbol);
 		}
 
-    PaymentToken memory paymentToken;
-    paymentToken.ptTokenAddress = _tokenAddress;
-    paymentToken.ptPriceFeed = _priceFeed;
-    paymentToken.ptUUSD_PER_TOKEN = _uUSDPerTokens;
-    paymentToken.ptDecimals = _decimals;
-    paymentTokens[_symbol] = paymentToken;
+		PaymentToken memory paymentToken;
+		paymentToken.ptTokenAddress = _tokenAddress;
+		paymentToken.ptPriceFeed = _priceFeed;
+		paymentToken.ptUUSD_PER_TOKEN = _uUSDPerTokens;
+		paymentToken.ptDecimals = _decimals;
+		paymentTokens[_symbol] = paymentToken;
 	}
 	function deletePaymentToken(string calldata _symbol, uint8 index) external onlyOwner {
 		require(keccak256(bytes(_symbol)) == keccak256(bytes(paymentSymbols[index])), "ERRP_INDX_PAY");
 
-    delete paymentTokens[_symbol];
+		delete paymentTokens[_symbol];
 
-    paymentSymbols[index] = paymentSymbols[paymentSymbols.length - 1];
-    paymentSymbols.pop();
-  }
+		paymentSymbols[index] = paymentSymbols[paymentSymbols.length - 1];
+		paymentSymbols.pop();
+	}
 
 	// price update
 	function getUUSD_PER_TOKEN(string calldata _symbol) external view returns (uint256) {
@@ -147,20 +147,20 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 
 		AggregatorV3Interface currencyToUsdPriceFeed = AggregatorV3Interface(paymentTokens[_symbol].ptPriceFeed);
 		(,int256 answer,,,) = currencyToUsdPriceFeed.latestRoundData();
-  	return(uint256(answer) * 10**6 / 10**currencyToUsdPriceFeed.decimals());
+		return(uint256(answer) * 10**6 / 10**currencyToUsdPriceFeed.decimals());
 	}
 
 	/********************************************************************************************************/
 	/********************************************* Investors ************************************************/
 	/********************************************************************************************************/
-  // Investors
-  address[] private investors;
-  function getInvestors() external view returns (address[] memory) {
-    return investors;
-  }
+	// Investors
+	address[] private investors;
+	function getInvestors() external view returns (address[] memory) {
+		return investors;
+	}
 	function getInvestorsCount() external view returns(uint) {  
-    return investors.length;
-  }
+		return investors.length;
+	}
 
 	// contributions
 	struct Contribution { 				// only for refund
@@ -183,8 +183,8 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 	}
 
 	function getuUSDToClaim(address investor) external view returns(uint256){
-    return contributions[investor].uUSDToPay;
-  }
+		return contributions[investor].uUSDToPay;
+	}
 
 	/********************************************************************************************************/
 	/*********************************************** Deposit ************************************************/
@@ -205,7 +205,7 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		} else {
 			AggregatorV3Interface currencyToUsdPriceFeed = AggregatorV3Interface(paymentTokens[_symbol].ptPriceFeed);
 			(,int256 answer,,,) = currencyToUsdPriceFeed.latestRoundData();
-  		uint256 priceuUsd = (uint256(answer) * 10**6 / 10**currencyToUsdPriceFeed.decimals());
+			uint256 priceuUsd = (uint256(answer) * 10**6 / 10**currencyToUsdPriceFeed.decimals());
 			paymentTokens[_symbol].ptUUSD_PER_TOKEN = priceuUsd;
 			//console.log("ICO - calculated price in uusd: %s ", priceuUsd);
 			deposit(_symbol, _rawAmountWitDecimals, _rawAmountWitDecimals * priceuUsd / 10**paymentTokens[_symbol].ptDecimals);
@@ -334,11 +334,11 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 	// tokenWalletAddress
 	address payable tokenAddress;
 	function setTokenAddress(address payable _address) external onlyOwner {
-    tokenAddress = _address;
-  }
-  function getTokenAddress() external view returns (address) {
-    return tokenAddress;
-  }
+		tokenAddress = _address;
+	}
+	function getTokenAddress() external view returns (address) {
+		return tokenAddress;
+	}
 
 	/********************************************************************************************************/
 	/*************************************************** Withdraw *******************************************/
@@ -373,11 +373,11 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 	// targetWalletAddress
 	address payable targetWalletAddress;
 	function setTargetWalletAddress(address payable _address) external onlyOwner {
-    targetWalletAddress = _address;
-  }
-  function getTargetWalletAddress() external view returns (address) {
-    return targetWalletAddress;
-  }
+		targetWalletAddress = _address;
+	}
+	function getTargetWalletAddress() external view returns (address) {
+		return targetWalletAddress;
+	}
 
 	/********************************************************************************************************/
 	/************************************************* Finalize *********************************************/

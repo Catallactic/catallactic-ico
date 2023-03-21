@@ -39,24 +39,24 @@ contract GasClickAntiWhale is Ownable {
 	// whitelisted addresses
 	address[] private whitelisted;
 	function getWhitelisted() external view returns(address[] memory) {  
-    return whitelisted;
-  }
+		return whitelisted;
+	}
 	function getWhitelistUserCount() external view returns(uint) {  
-    return whitelisted.length;
-  }
+		return whitelisted.length;
+	}
 
 	// whitelist status
-  mapping(address => bool) _isWhitelisted;
-  function isWhitelisted(address _user) external view returns (bool) {
-    return _isWhitelisted[_user];
-  }
-  function whitelistUser(address _user) external onlyOwner {
+	mapping(address => bool) _isWhitelisted;
+	function isWhitelisted(address _user) external view returns (bool) {
+		return _isWhitelisted[_user];
+	}
+	function whitelistUser(address _user) external onlyOwner {
 		_isWhitelisted[_user] = true;
 		whitelisted.push(_user);
-  }
-  function unwhitelistUser(address _user) external onlyOwner {
+	}
+	function unwhitelistUser(address _user) external onlyOwner {
 		_isWhitelisted[_user] = false;
-  }
+	}
 
 	/********************************************************************************************************/
 	/********************************************** Blacklists **********************************************/
@@ -73,24 +73,24 @@ contract GasClickAntiWhale is Ownable {
 	// blacklisted addresses
 	address[] private blacklisted;
 	function getBlacklisted() external view returns(address[] memory) {  
-    return blacklisted;
-  }
+		return blacklisted;
+	}
 	function getBlacklistUserCount() external view returns(uint) {  
-    return blacklisted.length;
-  }
+		return blacklisted.length;
+	}
 
 	// blacklist status
-  mapping(address => bool) _isBlacklisted;
-  function isBlacklisted(address _user) external view returns (bool) {
-    return _isBlacklisted[_user];
-  }
-  function blacklistUser(address _user) external onlyOwner {
+	mapping(address => bool) _isBlacklisted;
+	function isBlacklisted(address _user) external view returns (bool) {
+		return _isBlacklisted[_user];
+	}
+	function blacklistUser(address _user) external onlyOwner {
 		_isBlacklisted[_user] = true;
 		blacklisted.push(_user);
-  }
-  function unblacklistUser(address _user) external onlyOwner {
+	}
+	function unblacklistUser(address _user) external onlyOwner {
 		_isBlacklisted[_user] = false;
-  }
+	}
 
 	/********************************************************************************************************/
 	/********************************************* Investment Limits ****************************************/
@@ -105,11 +105,11 @@ contract GasClickAntiWhale is Ownable {
 	}
 	uint256 maxuUSDInvestment = 100_000_000_000;
 	function getMaxUSDInvestment() external view returns(uint256) {  
-    return maxuUSDInvestment / 10**6;
-  }
+		return maxuUSDInvestment / 10**6;
+	}
 	function setMaxuUSDInvestment(uint256 _maxuUSDInvestment) external onlyOwner {
-    maxuUSDInvestment = _maxuUSDInvestment;
-  }
+		maxuUSDInvestment = _maxuUSDInvestment;
+	}
 	
 	/********************************************************************************************************/
 	/********************************************* Transfer Limits ******************************************/
@@ -124,18 +124,18 @@ contract GasClickAntiWhale is Ownable {
 	}
 	uint256 maxuUSDTransfer = 50_000_000_000;
 	function getMaxUSDTransfer() external view returns(uint256) {  
-    return maxuUSDTransfer / 10**6;
-  }
+		return maxuUSDTransfer / 10**6;
+	}
 	function setMaxuUSDTransfer(uint256 _maxuUSDTransfer) external onlyOwner {
-    maxuUSDTransfer = _maxuUSDTransfer;
-  }
+		maxuUSDTransfer = _maxuUSDTransfer;
+	}
 
 	uint256 minuUSDTransfer = 9_999_999;
 	function getMinUSDTransfer() external view returns(uint256) {  
-    return minuUSDTransfer / 10**6;
-  }
-  function setMinuUSDTransfer(uint256 _minuUSDTransfer) external onlyOwner {
-    minuUSDTransfer = _minuUSDTransfer;
-  }
+		return minuUSDTransfer / 10**6;
+	}
+	function setMinuUSDTransfer(uint256 _minuUSDTransfer) external onlyOwner {
+		minuUSDTransfer = _minuUSDTransfer;
+	}
 
 }

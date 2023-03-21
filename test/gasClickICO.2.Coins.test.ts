@@ -39,14 +39,14 @@ describe("gasClickICO.2.Coins.test", function () {
 	/********************************************************************************************************/
 	before(async() => {
 		console.log('-------- Starting Tests -------');
-    GasClickICO = await ethers.getContractFactory("GasClickICO");
-    ico = await GasClickICO.deploy();
+		GasClickICO = await ethers.getContractFactory("GasClickICO");
+		ico = await GasClickICO.deploy();
 		await ico.deployed();
 		await ico.setPaymentToken("COIN", ico.address, "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", Math.floor(1100*1e6), 18);
 		console.log("deployed ICO:" + ico.address);
 
-    DemoToken = await ethers.getContractFactory("DemoToken");
-    token = await DemoToken.deploy();
+		DemoToken = await ethers.getContractFactory("DemoToken");
+		token = await DemoToken.deploy();
 		await token.deployed();
 		console.log("deployed Token:" + token.address);
 
@@ -139,11 +139,11 @@ describe("gasClickICO.2.Coins.test", function () {
 	let testTransferCoin = async (addr: SignerWithAddress, usdAmount: number) => {
 		console.log("purchase of : " + usdAmount + " USD = " + usdToWei(usdAmount) + " Wei by " + addr.address);
 		return await addr.sendTransaction({
-      to: ico.address,
+			to: ico.address,
 			value: usdToWei(usdAmount),
 			gasPrice: '0x5b9aca00',
 			gasLimit: '0x56f90',
-    });
+		});
 	};
 
 	let logStatus = async () => {

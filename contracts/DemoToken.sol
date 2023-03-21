@@ -23,7 +23,7 @@ import "hardhat/console.sol";
 
 // possibly ERC20Capped
 contract DemoToken is GasClickAntiWhale, ReentrancyGuard, IERC20 {
-  using SafeMath for uint256;
+	using SafeMath for uint256;
 
 	uint constant TRANSACTION_VALUE = 90;
 	uint constant TRANSACTION_PROJECT_FEE = 10;
@@ -118,16 +118,16 @@ contract DemoToken is GasClickAntiWhale, ReentrancyGuard, IERC20 {
 	/********************************************* investors ************************************************/
 	/********************************************************************************************************/
 	// balances
-  mapping(address => uint256) private _balances;
+	mapping(address => uint256) private _balances;
 	function balanceOf(address account) external view virtual override returns (uint256) {
 		return _balances[account];
 	}
 
 	// allowances
 	function increaseAllowance(address spender, uint256 addedValue) external virtual returns (bool) {
-    _approve(_msgSender(), spender, _allowances[_msgSender()][spender] + addedValue);
-    return true;
-  }
+		_approve(_msgSender(), spender, _allowances[_msgSender()][spender] + addedValue);
+		return true;
+	}
 	function decreaseAllowance(address spender, uint256 subtractedValue) external virtual returns (bool) {
 		uint256 currentAllowance = _allowances[_msgSender()][spender];
 		require(currentAllowance >= subtractedValue, "ERC20: decreased allowance below zero");
@@ -135,7 +135,7 @@ contract DemoToken is GasClickAntiWhale, ReentrancyGuard, IERC20 {
 			_approve(_msgSender(), spender, currentAllowance - subtractedValue);
 		}
 		return true;
-  }
+	}
 	function _spendAllowance(address owner, address spender, uint256 amount) internal virtual {
 		uint256 currentAllowance = _allowances[owner][spender];
 		console.log("existing allowance: ", owner, spender, currentAllowance);
@@ -182,14 +182,14 @@ contract DemoToken is GasClickAntiWhale, ReentrancyGuard, IERC20 {
 	/********************************************************************************************************/
 	/************************************************* Transfer *********************************************/
 	/********************************************************************************************************/
-  /**
-   * @dev See {IERC20-transfer}.
-   *
-   * Requirements:
-   *
-   * - `to` cannot be the zero address.
-   * - the caller must have a balance of at least `amount`.
-   */
+	/**
+	 * @dev See {IERC20-transfer}.
+	 *
+	 * Requirements:
+	 *
+	 * - `to` cannot be the zero address.
+	 * - the caller must have a balance of at least `amount`.
+	 */
 	function transfer(address to, uint256 amount) external virtual override returns (bool) {
 		address owner = _msgSender();
 

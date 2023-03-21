@@ -7,7 +7,7 @@ import { ethers } from "hardhat";
 import hre from 'hardhat'
 
 async function main() {
-  // owner
+	// owner
 	const [owner] = await ethers.getSigners();
 	console.log("owner:", owner.address);
 	console.log("owner balance:", await owner.getBalance());
@@ -17,7 +17,7 @@ async function main() {
 	// deploy Token
 	const Token = await ethers.getContractFactory("DemoToken");
 	const token = await Token.deploy();
-  await token.deployed();
+	await token.deployed();
 	console.log("Token deployed to:", token.address);
 	
 	// deploy ICO
@@ -309,6 +309,6 @@ async function main() {
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
 main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
+	console.error(error);
+	process.exitCode = 1;
 });
