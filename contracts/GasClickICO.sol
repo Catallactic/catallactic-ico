@@ -124,12 +124,15 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 			paymentSymbols.push(_symbol);
 		}
 
-		PaymentToken memory paymentToken;
-		paymentToken.ptTokenAddress = _tokenAddress;
-		paymentToken.ptPriceFeed = _priceFeed;
-		paymentToken.ptUUSD_PER_TOKEN = _uUSDPerTokens;
-		paymentToken.ptDecimals = _decimals;
-		paymentTokens[_symbol] = paymentToken;
+		paymentTokens[_symbol] = PaymentToken({
+      ptTokenAddress: _tokenAddress,
+      ptPriceFeed: _priceFeed,
+			ptUUSD_PER_TOKEN: _uUSDPerTokens,
+			ptDecimals: _decimals,
+			ptuUSDInvested: 0,
+			ptAmountInvested: 0
+    });
+
 	}
 	function deletePaymentToken(string calldata _symbol, uint8 index) external onlyOwner {
 		require(keccak256(bytes(_symbol)) == keccak256(bytes(paymentSymbols[index])), "ERRP_INDX_PAY");
