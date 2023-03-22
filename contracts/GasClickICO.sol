@@ -259,45 +259,40 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 	/********************************************************************************************************/
 	/**************************************************** Refund ********************************************/
 	/********************************************************************************************************/
-	function refund() external nonReentrant {
-		refundInvestor(msg.sender);
+	function refund(string calldata _symbol) external nonReentrant {
+		refundInvestor(_symbol, msg.sender);
 	}
-	function refundAll() external onlyOwner {
+	function refundAll(string calldata _symbol) external onlyOwner {
 		uint investorsLength = investors.length;
 		for (uint i = 0; i < investorsLength; i++) {
-			refundInvestor(investors[i]);
+			refundInvestor(_symbol, investors[i]);
 		}
 	}
-	function refundInvestor(address investor) internal {
+	function refundInvestor(string calldata _symbol, address investor) internal {
 		//console.log("ICO - refunding tokens for : ", investor);
 		require(stage == CrowdsaleStage.Finished, "ERRR_MUST_FIN");																																										// ICO must be finished
 		require(totaluUSDTInvested < SOFT_CAP_uUSD, "ERRR_PASS_SOF");																																									// Passed SoftCap. No refund
-		uint256 uUSDToPay = contributions[investor].uUSDToPay;
-		require(uUSDToPay > 0, "ERRR_ZERO_REF");																																																			// Nothing to refund
+		uint256 rawAmount = contributions[investor].conts[_symbol].cAmountInvested;
+		require(rawAmount > 0, "ERRR_ZERO_REF");																																																			// Nothing to refund
 
-		uint paymentSymbolsLength = paymentSymbols.length;
-		for (uint i = 0; i < paymentSymbolsLength; i++) {
-			uint256 rawAmount = contributions[investor].conts[paymentSymbols[i]].cAmountInvested;
+		// clear variables
+		contributions[investor].conts[_symbol].cAmountInvested = 0;
+		contributions[investor].conts[_symbol].cuUSDInvested = 0;
+		contributions[investor].uUSDToPay = 0;
 
-			// clear variables
-			contributions[investor].conts[paymentSymbols[i]].cAmountInvested = 0;
-			contributions[investor].conts[paymentSymbols[i]].cuUSDInvested = 0;
-			contributions[investor].uUSDToPay = 0;
+		emit FundsRefunded(investor, rawAmount);
 
-			// do refund
-			if (rawAmount > 0) {
-				if (keccak256(bytes(paymentSymbols[i])) == keccak256(bytes("COIN"))) {
-					(bool success, ) = payable(investor).call{ value: rawAmount }("");
-					require(success, "ERRR_WITH_REF");																																																			// Unable to refund
+		// do refund
+		if (rawAmount > 0) {
+			if (keccak256(bytes(_symbol)) == keccak256(bytes("COIN"))) {
+				(bool success, ) = payable(investor).call{ value: rawAmount }("");
+				require(success, "ERRR_WITH_REF");																																																			// Unable to refund
 
-				} else {
-					IERC20(paymentTokens[paymentSymbols[i]].ptTokenAddress).safeTransfer(investor, rawAmount);
-				}
+			} else {
+				IERC20(paymentTokens[_symbol].ptTokenAddress).safeTransfer(investor, rawAmount);
 			}
-
 		}
 
-		emit FundsRefunded(investor, uUSDToPay);
 	}
 	event FundsRefunded(address _backer, uint _amount);
 

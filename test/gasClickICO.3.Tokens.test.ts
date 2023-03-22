@@ -468,19 +468,19 @@ describe("gasClickICO.3.Tokens.test", function () {
 
 		let contributed1 = await ico.getContribution(addr1.address, "FOO");
 		console.log("refunding " + contributed1);
-		await expect(() => ico.connect(addr1).refund())
+		await expect(() => ico.connect(addr1).refund("FOO"))
 			.to.changeTokenBalances(foo, [ico, addr1], [contributed1.mul(-1), contributed1]);
 		expect(await ico.getContribution(addr1.address, "FOO")).to.equal(0);
 		expect(await ico.getuUSDToClaim(addr1.address)).to.equal(0);
 
 		let contributed2 = await ico.getContribution(addr2.address, "FOO");
-		await expect(() => ico.connect(addr2).refund())
+		await expect(() => ico.connect(addr2).refund("FOO"))
 			.to.changeTokenBalances(foo, [ico, addr2], [contributed2.mul(-1), contributed2]);
 		expect(await ico.getContribution(addr2.address, "FOO")).to.equal(0);
 		expect(await ico.getuUSDToClaim(addr2.address)).to.equal(0);
 
 		let contributed3 = await ico.getContribution(addr3.address, "FOO");
-		await expect(() => ico.connect(addr3).refund())
+		await expect(() => ico.connect(addr3).refund("FOO"))
 			.to.changeTokenBalances(foo, [ico, addr3], [contributed3.mul(-1), contributed3]);
 		expect(await ico.getContribution(addr3.address, "FOO")).to.equal(0);
 		expect(await ico.getuUSDToClaim(addr3.address)).to.equal(0);
@@ -512,7 +512,7 @@ describe("gasClickICO.3.Tokens.test", function () {
 		let contributed3 = await ico.getContribution(addr3.address, "FOO");
 		let totalContributed = contributed1.add(contributed2).add(contributed3);
 		console.log("refundAll");
-		await expect(() => ico.refundAll())
+		await expect(() => ico.refundAll("FOO"))
 			.to.changeTokenBalances(foo, [ico, addr1, addr2, addr3], [totalContributed.mul(-1), contributed1, contributed2, contributed3]);
 
 		expect(await ico.getContribution(addr1.address, "FOO")).to.equal(0);
