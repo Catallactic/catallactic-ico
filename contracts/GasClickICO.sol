@@ -280,7 +280,7 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		contributions[investor].conts[_symbol].cuUSDInvested = 0;
 		contributions[investor].uUSDToPay = 0;
 
-		emit FundsRefunded(investor, rawAmount);
+		emit FundsRefunded(investor, _symbol, rawAmount);
 
 		// do refund
 		if (rawAmount > 0) {
@@ -294,7 +294,7 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		}
 
 	}
-	event FundsRefunded(address _backer, uint _amount);
+	event FundsRefunded(address _backer, string symbol, uint _amount);
 
 	/********************************************************************************************************/
 	/**************************************************** Claim *********************************************/
