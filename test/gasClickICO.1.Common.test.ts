@@ -163,7 +163,6 @@ describe("gasClickICO.1.Common.test", function () {
 		await expect(ico.connect(addr1).setCrowdsaleStage(1)).to.be.revertedWith('Ownable: caller is not the owner');
 		await expect(ico.connect(addr1).setHardCapuUSD(300_000_000_000)).to.be.revertedWith('Ownable: caller is not the owner');
 		await expect(ico.connect(addr1).setSoftCapuUSD(50_000_000_000)).to.be.revertedWith('Ownable: caller is not the owner');
-		await expect(ico.connect(addr1).setPriceuUSD(0.03*10**6)).to.be.revertedWith('Ownable: caller is not the owner');
 		await expect(ico.connect(addr1).setDynamicPrice(true)).to.be.revertedWith('Ownable: caller is not the owner');
 		await expect(ico.connect(addr1).setPaymentToken("COIN", ico.address, "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", Math.floor(1100*1e6), 18)).to.be.revertedWith('Ownable: caller is not the owner');
 		await expect(ico.connect(addr1).deletePaymentToken('DOGE', 2)).to.be.revertedWith('Ownable: caller is not the owner');
@@ -207,9 +206,6 @@ describe("gasClickICO.1.Common.test", function () {
 
 		// get ICO Price
 		console.log('price: ' + await ico.getPriceuUSD());
-		await ico.setPriceuUSD(BigInt(0.02*10**6));
-		expect(await ico.getPriceuUSD()).to.equal(BigInt(0.02*10**6));
-		await ico.setPriceuUSD(BigInt(0.03*10**6));
 		expect(await ico.getPriceuUSD()).to.equal(BigInt(0.03*10**6));
 
 	});

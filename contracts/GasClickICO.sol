@@ -56,9 +56,13 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 	}
 
 	/********************************************************************************************************/
-	/*********************************************** Supplies ***********************************************/
+	/*********************************************** Invested ***********************************************/
 	/********************************************************************************************************/
-	// Supplies
+	uint256 private totaluUSDTInvested = 0;
+	function getTotaluUSDInvested() external view returns (uint256) {
+		return totaluUSDTInvested;
+	}	
+
 	uint256 private HARD_CAP_uUSD = 300_000_000_000;
 	function getHardCap() external view returns (uint256) {
 		return HARD_CAP_uUSD / 10**6;
@@ -75,18 +79,10 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		SOFT_CAP_uUSD = _softCap;
 	}
 
-	uint256 private totaluUSDTInvested = 0;
-	function getTotaluUSDInvested() external view returns (uint256) {
-		return totaluUSDTInvested;
-	}	
-
 	// ICO Price
 	uint256 private uUSDT_PER_TOKEN = 0.03*10**6;
 	function getPriceuUSD() external view returns (uint256) {
 		return uUSDT_PER_TOKEN;
-	}
-	function setPriceuUSD(uint256 _uusd_per_token) external onlyOwner {
-		uUSDT_PER_TOKEN = _uusd_per_token;
 	}
 	
 	bool dynamicPrice = false;
