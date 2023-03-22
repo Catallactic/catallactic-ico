@@ -200,11 +200,10 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 			deposit(_symbol, _rawAmountWitDecimals, _rawAmountWitDecimals * paymentTokens[_symbol].ptUUSD_PER_TOKEN / 10**paymentTokens[_symbol].ptDecimals);
 		} else {
 			AggregatorV3Interface currencyToUsdPriceFeed = AggregatorV3Interface(paymentTokens[_symbol].ptPriceFeed);
-			(,int256 answer,,,) = currencyToUsdPriceFeed.latestRoundData();
-			uint256 priceuUsd = (uint256(answer) * 10**6 / 10**currencyToUsdPriceFeed.decimals());
-			paymentTokens[_symbol].ptUUSD_PER_TOKEN = priceuUsd;
-			//console.log("ICO - calculated price in uusd: %s ", priceuUsd);
-			deposit(_symbol, _rawAmountWitDecimals, _rawAmountWitDecimals * priceuUsd / 10**paymentTokens[_symbol].ptDecimals);
+			(,int256 rawUsdPrice,,,) = currencyToUsdPriceFeed.latestRoundData();
+			paymentTokens[_symbol].ptUUSD_PER_TOKEN = uint256(rawUsdPrice) * 10**6 / 10**currencyToUsdPriceFeed.decimals();
+			//console.log("ICO - calculated price in uusd: %s ", paymentTokens[_symbol].ptUUSD_PER_TOKEN);
+			deposit(_symbol, _rawAmountWitDecimals, _rawAmountWitDecimals * paymentTokens[_symbol].ptUUSD_PER_TOKEN / 10**paymentTokens[_symbol].ptDecimals);
 		}
 	}
 
