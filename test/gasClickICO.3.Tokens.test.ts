@@ -332,14 +332,11 @@ describe("gasClickICO.3.Tokens.test", function () {
 		await foo.transfer(addr3.address, amountToTransfer);
 
 		// whitelisting enabled, small transfer
-		console.log("getuUSDToClaim: " + await ico.getuUSDToClaim(addr1.address));
 		await ico.setWhitelistuUSDThreshold(30 * 10**6);
 		await ico.unwhitelistUser(addr1.address);
 		await expect(testTransferToken(addr1, 'FOO', 31)).to.be.revertedWith('ERRD_MUST_WHI');
 		await ico.whitelistUser(addr1.address);
 		await expect(testTransferToken(addr1, 'FOO', 31)).not.to.be.reverted;
-
-		await ico.setWhitelistuUSDThreshold(10 * 10**12);
 	});
 
 	it("Should be able to blacklist and unblacklist", async() => {
@@ -444,6 +441,25 @@ describe("gasClickICO.3.Tokens.test", function () {
 		let balanceOfICO = await foo.balanceOf(ico.address);
 		console.log("balance " + balanceOfICO);
 		expect(balanceOfICO).to.equal(totalContributed);
+	});
+
+	it("Should be able to do big transactions", async() => {
+		await ico.setCrowdsaleStage(1);
+
+		// prepare test users
+		await ico.setPaymentToken("FOO", foo.address, foo.address, Math.floor(258.1*1e6), 18);
+		let amountToTransfer = ethers.utils.parseUnits("1000000", 18).toString();
+		await foo.transfer(addr1.address, amountToTransfer);
+		await foo.transfer(addr2.address, amountToTransfer);
+		await foo.transfer(addr3.address, amountToTransfer);
+
+		// do big transaction
+		await ico.whitelistUser(addr1.address);
+		await ico.setMaxuUSDTransfer(4_000_000 * 10**6);
+		await ico.setMaxuUSDInvestment(4_000_000 * 10**6);
+		await ico.setHardCapuUSD(4_000_000 * 10**6);
+		await expect(testTransferToken(addr1, 'FOO', 3_000_000)).not.to.be.reverted;
+		await expect(await ico.getuUSDContribution(addr1.address, "FOO")).to.equal(3_000_000_000_000);
 	});
 
 	/********************************************************************************************************/
