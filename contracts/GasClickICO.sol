@@ -24,7 +24,6 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
-//import "hardhat/console.sol";
 
 contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 	using SafeERC20 for IERC20;
@@ -96,8 +95,6 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 	/********************************************************************************************************/
 	/******************************************* Payment Tokens *********************************************/
 	/********************************************************************************************************/
-	// bytes5 https://github.com/ethereum-optimism/smock/issues/35
-	// https://web3.hashnode.com/solidity-tutorial-data-types-and-data-structures-in-solidity
 	// Payment Tokens
 	string[] private paymentSymbols;
 	function getPaymentSymbols() external view returns (string[] memory) {
@@ -202,14 +199,12 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 			AggregatorV3Interface currencyToUsdPriceFeed = AggregatorV3Interface(paymentTokens[_symbol].ptPriceFeed);
 			(,int256 rawUsdPrice,,,) = currencyToUsdPriceFeed.latestRoundData();
 			paymentTokens[_symbol].ptUUSD_PER_TOKEN = uint256(rawUsdPrice) * 10**6 / 10**currencyToUsdPriceFeed.decimals();
-			//console.log("ICO - calculated price in uusd: %s ", paymentTokens[_symbol].ptUUSD_PER_TOKEN);
 			deposit(_symbol, _rawAmountWitDecimals, _rawAmountWitDecimals * paymentTokens[_symbol].ptUUSD_PER_TOKEN / 10**paymentTokens[_symbol].ptDecimals);
 		}
 	}
 
 	// receive contribution
 	function deposit(string memory _symbol, uint256 _rawAmountWitDecimals, uint _uUSDAmount) internal {
-		//console.log("ICO - transferring : %s %s %s", _symbol, _rawAmountWitDecimals, _uUSDAmount);
 		require(stage == CrowdsaleStage.Ongoing, "ERRD_MUST_ONG");																																										// ICO must be ongoing
 		require(!useBlacklist || !_isBlacklisted[msg.sender], 'ERRD_MUSN_BLK');																																				// must not be blacklisted
 		require(_uUSDAmount >= minuUSDTransfer, "ERRD_TRAS_LOW");																																											// transfer amount too low
@@ -242,8 +237,6 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 
 		// move tokens if tokens investment
 		if (keccak256(bytes(_symbol)) != keccak256(bytes("COIN"))) {
-			//console.log("ICO - getting from COIN: ", _symbol, _rawAmountWitDecimals);
-			//console.log("ICO - investor allowance: ", IERC20(paymentTokens[_symbol].ptTokenAddress).allowance(msg.sender, address(this)));
 			require(IERC20(paymentTokens[_symbol].ptTokenAddress).allowance(msg.sender, address(this)) >= _rawAmountWitDecimals, "ERRD_ALLO_LOW");				// insuffient allowance
 			IERC20(paymentTokens[_symbol].ptTokenAddress).safeTransferFrom(msg.sender, address(this), _rawAmountWitDecimals);
 		}
@@ -264,7 +257,6 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		}
 	}
 	function refundInvestor(string calldata _symbol, address investor) internal {
-		//console.log("ICO - refunding tokens for : ", investor);
 		require(stage == CrowdsaleStage.Finished, "ERRR_MUST_FIN");																																										// ICO must be finished
 		require(totaluUSDTInvested < SOFT_CAP_uUSD, "ERRR_PASS_SOF");																																									// Passed SoftCap. No refund
 		uint256 rawAmount = contributions[investor].conts[_symbol].cAmountInvested;
@@ -304,7 +296,6 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		}
 	}
 	function claimInvestor(address investor) internal {
-		//console.log("ICO - claiming tokens for : ", investor);
 		require(stage == CrowdsaleStage.Finished, "ERRC_MUST_FIN");																																										// ICO must be finished
 		require(totaluUSDTInvested > SOFT_CAP_uUSD, "ERRC_NPAS_SOF");																																									// Not passed SoftCap
 		require(tokenAddress != address(0x0), "ERRC_MISS_TOK");																																												// Provide Token
