@@ -12,8 +12,11 @@ async function main() {
 	console.log("owner:", owner.address);
 	console.log("owner balance:", await owner.getBalance());
 	const networkName = hre.network.name
-	console.log(networkName)
+	console.log(networkName);
 
+	// **********************************************************************************************************************************
+	// ************************************************************* Deploy *************************************************************
+	// **********************************************************************************************************************************
 	// deploy Token
 	const Token = await ethers.getContractFactory("DemoToken");
 	const token = await Token.deploy();
