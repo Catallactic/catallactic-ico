@@ -39,12 +39,53 @@ const config: HardhatUserConfig = {
 		},
 
 		// *********************************************************************************************************************************************
+		// *************************************************************** ethereum ********************************************************************
+		// *********************************************************************************************************************************************
+		mainnet: {
+			url: "https://mainnet.infura.io/v3/" + process.env.INFURA_ID, 									// mainnet url with projectId
+			accounts: [process.env.PRIVATE_KEY_336A!], 																			// account that deploys
+		},
+		sepolia: {
+			url: "https://sepolia.infura.io/v3/" + process.env.INFURA_ID,										//sepolia url with projectId
+			accounts: [process.env.PRIVATE_KEY_336A!], 																			// account that deploys
+		},
+		goerly: {
+			url: "https://goerli.infura.io/v3/" + process.env.INFURA_ID,	 									//goerly url with projectId
+			accounts: [process.env.PRIVATE_KEY_336A!],																			// account that deploys
+		},
+
+		// *********************************************************************************************************************************************
+		// "https://blog.infura.io/post/deprecation-timeline-for-rinkeby-ropsten-and-kovan-testnets
+		// "message":"Network decommissioned, please use Goerli or Sepolia instead",
+		// "code":-32601,
+		/*ropsten: { // deprecated in 2022 - 
+			url: "https://ropsten.infura.io/v3/" + process.env.INFURA_ID, 									// Infura url with projectId
+			accounts: [process.env.PRIVATE_KEY_336A!],																		 	// account that deploys
+		},
+		rinkeby: { // deprecated in 2022
+			url: "https://rinkeby.infura.io/v3/" + process.env.INFURA_ID, 									// rinkeby url with projectId
+			accounts: [process.env.PRIVATE_KEY_336A!],																		 	// account that deploys
+		},
+		kovan: { // deprecated in 2019
+			url: "https://kovan.infura.io/v3/" + process.env.INFURA_ID, 										//kovan url with projectId
+			accounts: [process.env.PRIVATE_KEY_336A!],																		 	// account that deploys
+		},*/
+
+		// *********************************************************************************************************************************************
 		// **************************************************************** Polygon ********************************************************************
 		// *********************************************************************************************************************************************
-		/*polygon: {
-			url: "https://rpc-mainnet.matic.network",																				// https://polygonscan.com/myapikey
+		polygon: {
+			// RPC URL
+			// https://chainlist.org/chain/137
+			//url: "https://rpc-mainnet.matic.network",
+			//url: "https://polygonscan.com/myapikey",
+			//url: "https://rpc-mainnet.maticvigil.com",
+			url: "https://polygon-rpc.com",																									// https://polygon-rpc.com/
+			//url: "",																																			// Infura
+			//url: "",																																			// Moralis Speedy Nodes
+			//url: "",																																			// QuickNode
 			accounts: [process.env.PRIVATE_KEY_336A!],
-		},*/
+		},
 		polygon_mumbai: {
 			url: "https://rpc-mumbai.maticvigil.com",																
 			accounts: [process.env.PRIVATE_KEY_336A!],																			// account that deploys
@@ -66,43 +107,9 @@ const config: HardhatUserConfig = {
 			accounts: {mnemonic: process.env.MNEMONIC!}
 		},
 
-		// *********************************************************************************************************************************************
-		// *************************************************************** ethereum ********************************************************************
-		// *********************************************************************************************************************************************
-		mainnet: {
-			url: "https://mainnet.infura.io/v3/" + process.env.INFURA_ID, 									// mainnet url with projectId
-			accounts: [process.env.PRIVATE_KEY_336A!], 																			// account that deploys
-		},
-		sepolia: {
-			url: "https://sepolia.infura.io/v3/" + process.env.INFURA_ID,										//sepolia url with projectId
-			accounts: [process.env.PRIVATE_KEY_336A!], 																			// account that deploys
-		},
-		goerly: {
-			url: "https://goerli.infura.io/v3/" + process.env.INFURA_ID,	 									//goerly url with projectId
-			accounts: [process.env.PRIVATE_KEY_336A!],																			// account that deploys
-		},
-
-
-		// *********************************************************************************************************************************************
-		// "https://blog.infura.io/post/deprecation-timeline-for-rinkeby-ropsten-and-kovan-testnets
-		// "message":"Network decommissioned, please use Goerli or Sepolia instead",
-		// "code":-32601,
-		/*ropsten: { // deprecated in 2022 - 
-			url: "https://ropsten.infura.io/v3/" + process.env.INFURA_ID, 									//Infura url with projectId
-			accounts: [process.env.PRIVATE_KEY_336A!],																		 	// account that deploys
-		},
-		rinkeby: { // deprecated in 2022
-			url: "https://rinkeby.infura.io/v3/" + process.env.INFURA_ID, 									//rinkeby url with projectId
-			accounts: [process.env.PRIVATE_KEY_336A!],																		 	// account that deploys
-		},
-		kovan: { // deprecated in 2019
-			url: "https://kovan.infura.io/v3/" + process.env.INFURA_ID, 										//kovan url with projectId
-			accounts: [process.env.PRIVATE_KEY_336A!],																		 	// account that deploys
-		},*/
-
 	},
 	etherscan: {
-		apiKey: process.env.ETHERSCAN_API_KEY,
+		apiKey: process.env.POLYGONSCAN_API_KEY,
 	},
 	gasReporter: {
 		//enabled: process.env.REPORT_GAS !== undefined,
