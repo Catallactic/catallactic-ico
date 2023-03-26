@@ -1,11 +1,5 @@
 /**
- * Anji is about building an ecosystem of altruistic defi applications to enable a decentralised digital economy that leaves the earth in a better way than we found it.
- *
- * Web: https://anji.eco
- * Telegram: https://t.me/anjieco
- * Twitter: https://twitter.com/anji_eco
- *
- *                 _ _   ______                        _
+ *                _ _   ______                        _
  *	░██████╗░░█████╗░░██████╗░█████╗░██╗░░░░░██╗░█████╗░██╗░░██╗
  *	██╔════╝░██╔══██╗██╔════╝██╔══██╗██║░░░░░██║██╔══██╗██║░██╔╝
  *	██║░░██╗░███████║╚█████╗░██║░░╚═╝██║░░░░░██║██║░░╚═╝█████═╝░
@@ -14,7 +8,12 @@
  *	░╚═════╝░╚═╝░░╚═╝╚═════╝░░╚════╝░╚══════╝╚═╝░╚════╝░╚═╝░░╚═╝
  *
  *
- * This is a payable push token
+ * Web: https://gasclick.net
+ *
+ *
+ * Merging the new cryptoeconomy and the traditional economy.
+ * By leveraging the value already existing on LPG consumption, we tokenize, capture and offer it to worldwide investors. 
+ * A match made in heaven.
  * 
  */
 // SPDX-License-Identifier: MIT
