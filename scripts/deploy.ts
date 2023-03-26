@@ -25,13 +25,6 @@ async function main() {
 	await ico.deployed();
 	console.log("ICO deployed to:", ico.address);
 
-	// deploy Token
-	/*const Token = await ethers.getContractFactory("DemoToken");
-	const token = await Token.deploy();
-	await token.deployed();
-	console.log("Token deployed to:", token.address);
-	await ico.setTokenAddress(token.address);*/
-
 	// **********************************************************************************************************************************
 	// *************************************************** Configure Default prices *****************************************************
 	// **********************************************************************************************************************************
@@ -50,6 +43,13 @@ async function main() {
 
 	if (hre.network.name == 'localhost') {
 		console.log("deploying to localhost");
+
+		// deploy Token
+		const Token = await ethers.getContractFactory("DemoToken");
+		const token = await Token.deploy();
+		await token.deployed();
+		console.log("Token deployed to:", token.address);
+		await ico.setTokenAddress(token.address);
 
 		// deploy WBTC
 		const WBTC = await ethers.getContractFactory("FOO");
@@ -102,6 +102,13 @@ async function main() {
 	// **********************************************************************************************************************************
 	if (hre.network.name == 'sepolia') {
 		console.log("deploying to sepolia");
+
+		// deploy Token
+		const Token = await ethers.getContractFactory("DemoToken");
+		const token = await Token.deploy();
+		await token.deployed();
+		console.log("Token deployed to:", token.address);
+		await ico.setTokenAddress(token.address);
 
 		// deploy WBTC
 		const WBTC = await ethers.getContractFactory("FOO");
@@ -175,6 +182,13 @@ async function main() {
 	// **********************************************************************************************************************************
 	if (hre.network.name == 'polygon_mumbai') {
 		console.log("deploying to polygon_mumbai");
+
+		// deploy Token
+		const Token = await ethers.getContractFactory("DemoToken");
+		const token = await Token.deploy();
+		await token.deployed();
+		console.log("Token deployed to:", token.address);
+		await ico.setTokenAddress(token.address);
 
 		// deploy WBTC
 		// https://mumbai.polygonscan.com/address/0x0d787a4a1548f673ed375445535a6c7a1ee56180
@@ -268,6 +282,13 @@ async function main() {
 
 	if (hre.network.name == 'bsc_testnet') {
 
+		// deploy Token
+		const Token = await ethers.getContractFactory("DemoToken");
+		const token = await Token.deploy();
+		await token.deployed();
+		console.log("Token deployed to:", token.address);
+		await ico.setTokenAddress(token.address);
+
 		// deploy WBTC
 		// N/A
 
@@ -300,6 +321,13 @@ async function main() {
 	}
 
 	if (hre.network.name == 'optimism_goerly') {
+
+		// deploy Token
+		const Token = await ethers.getContractFactory("DemoToken");
+		const token = await Token.deploy();
+		await token.deployed();
+		console.log("Token deployed to:", token.address);
+		await ico.setTokenAddress(token.address);
 
 		// deploy WBTC
 		// N/A
