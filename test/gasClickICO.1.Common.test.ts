@@ -31,6 +31,7 @@ describe("gasClickICO.1.Common.test", function () {
 	let ERRC_MISS_TOK: string = 'ERRC_MISS_TOK' // Provide Token
 	let ERRW_MUST_FIN: string = 'ERRW_MUST_FIN' // ICO must be finished
 	let ERRW_NPAS_SOF: string = 'ERRW_NPAS_SOF' // Not passed SoftCap
+	let ERRW_INVA_ADD: string = 'ERRW_INVA_ADD' // Invalid Address
 	let ERRW_MISS_WAL: string = 'ERRW_MISS_WAL' // Provide Wallet
 	let ERRR_ZERO_WIT: string = 'ERRR_ZERO_WIT' // Nothing to withdraw
 	let ERRR_WITH_BAD: string = 'ERRR_WITH_BAD' // Unable to withdraw
@@ -270,10 +271,12 @@ describe("gasClickICO.1.Common.test", function () {
 	/********************************************************************************************************/
 	it("Should be able to configure wallets", async() => {
 		expect(await ico.getTokenAddress()).to.equal('0x0000000000000000000000000000000000000000', 'Initial token address must be 0');
+		await expect(ico.setTokenAddress('0x0000000000000000000000000000000000000000')).to.be.revertedWith('ERRW_INVA_ADD');
 		await ico.setTokenAddress(addr1.address);
 		expect(await ico.getTokenAddress()).to.equal(addr1.address, 'token address project should have changed to ' + addr1.address);
 
 		expect(await ico.getTargetWalletAddress()).to.equal('0x0000000000000000000000000000000000000000', 'Initial project address must be 0');
+		await expect(ico.setTargetWalletAddress('0x0000000000000000000000000000000000000000')).to.be.revertedWith('ERRW_INVA_ADD');
 		await ico.setTargetWalletAddress(addr1.address);
 		expect(await ico.getTargetWalletAddress()).to.equal(addr1.address, 'target wallet address should have changed to ' + addr1.address);
 	});

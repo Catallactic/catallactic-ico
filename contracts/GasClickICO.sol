@@ -327,6 +327,8 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 	// tokenWalletAddress
 	address payable tokenAddress;
 	function setTokenAddress(address payable add) external onlyOwner {
+		require(add !=  address(0), "ERRW_INVA_ADD");
+
 		tokenAddress = add;
 	}
 	function getTokenAddress() external view returns (address) {
@@ -366,6 +368,8 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 	// targetWalletAddress
 	address payable targetWalletAddress;
 	function setTargetWalletAddress(address payable add) external onlyOwner {
+		require(add !=  address(0), "ERRW_INVA_ADD");
+
 		targetWalletAddress = add;
 	}
 	function getTargetWalletAddress() external view returns (address) {
