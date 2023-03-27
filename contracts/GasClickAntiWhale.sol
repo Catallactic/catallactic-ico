@@ -28,33 +28,33 @@ contract GasClickAntiWhale is Ownable {
 	/********************************************************************************************************/
 	// whitelist Threshold
 	uint256 whitelistuUSDThreshold = 10_000_000_000;
-	function setWhitelistuUSDThreshold(uint256 _whitelistuUSDThreshold) external onlyOwner {
-		whitelistuUSDThreshold = _whitelistuUSDThreshold;
+	function setWhitelistuUSDThreshold(uint256 whitelistuUSDThreshold_) external onlyOwner {
+		whitelistuUSDThreshold = whitelistuUSDThreshold_;
 	}
 	function getWhitelistuUSDThreshold() external view returns (uint256) {
 		return whitelistuUSDThreshold;
 	}
 
 	// whitelisted addresses
-	address[] private whitelisted;
+	address[] private whitelistedAccs;
 	function getWhitelisted() external view returns(address[] memory) {  
-		return whitelisted;
+		return whitelistedAccs;
 	}
 	function getWhitelistUserCount() external view returns(uint) {  
-		return whitelisted.length;
+		return whitelistedAccs.length;
 	}
 
 	// whitelist status
-	mapping(address => bool) _isWhitelisted;
-	function isWhitelisted(address _user) external view returns (bool) {
-		return _isWhitelisted[_user];
+	mapping(address => bool) whitelisted;
+	function isWhitelisted(address user) external view returns (bool) {
+		return whitelisted[user];
 	}
-	function whitelistUser(address _user) external onlyOwner {
-		_isWhitelisted[_user] = true;
-		whitelisted.push(_user);
+	function whitelistUser(address user) external onlyOwner {
+		whitelisted[user] = true;
+		whitelistedAccs.push(user);
 	}
-	function unwhitelistUser(address _user) external onlyOwner {
-		_isWhitelisted[_user] = false;
+	function unwhitelistUser(address user) external onlyOwner {
+		whitelisted[user] = false;
 	}
 
 	/********************************************************************************************************/
@@ -62,79 +62,79 @@ contract GasClickAntiWhale is Ownable {
 	/********************************************************************************************************/
 	// blacklist flag
 	bool useBlacklist;
-	function setUseBlacklist(bool _useBlacklist) external onlyOwner {
-		useBlacklist = _useBlacklist;
+	function setUseBlacklist(bool useBlacklist_) external onlyOwner {
+		useBlacklist = useBlacklist_;
 	}
 	function getUseBlacklist() external view returns (bool) {
 		return useBlacklist;
 	}
 
 	// blacklisted addresses
-	address[] private blacklisted;
+	address[] private blacklistedAccs;
 	function getBlacklisted() external view returns(address[] memory) {  
-		return blacklisted;
+		return blacklistedAccs;
 	}
 	function getBlacklistUserCount() external view returns(uint) {  
-		return blacklisted.length;
+		return blacklistedAccs.length;
 	}
 
 	// blacklist status
-	mapping(address => bool) _isBlacklisted;
-	function isBlacklisted(address _user) external view returns (bool) {
-		return _isBlacklisted[_user];
+	mapping(address => bool) blacklisted;
+	function isBlacklisted(address user) external view returns (bool) {
+		return blacklisted[user];
 	}
-	function blacklistUser(address _user) external onlyOwner {
-		_isBlacklisted[_user] = true;
-		blacklisted.push(_user);
+	function blacklistUser(address user) external onlyOwner {
+		blacklisted[user] = true;
+		blacklistedAccs.push(user);
 	}
-	function unblacklistUser(address _user) external onlyOwner {
-		_isBlacklisted[_user] = false;
+	function unblacklistUser(address user) external onlyOwner {
+		blacklisted[user] = false;
 	}
 
 	/********************************************************************************************************/
 	/********************************************* Investment Limits ****************************************/
 	/********************************************************************************************************/
 	// Investment Limits
-	mapping(address => bool) _isExcludedFromMaxInvestment;
+	mapping(address => bool) excludedFromMaxInvestment;
 	function setExcludedFromMaxInvestment(address account, bool exclude) external onlyOwner {
-		_isExcludedFromMaxInvestment[account] = exclude;
+		excludedFromMaxInvestment[account] = exclude;
 	}
 	function isExcludedFromMaxInvestment(address acc) external view returns(bool) {
-		return _isExcludedFromMaxInvestment[acc];
+		return excludedFromMaxInvestment[acc];
 	}
 	uint256 maxuUSDInvestment = 100_000_000_000;
 	function getMaxUSDInvestment() external view returns(uint256) {  
 		return maxuUSDInvestment / 10**6;
 	}
-	function setMaxuUSDInvestment(uint256 _maxuUSDInvestment) external onlyOwner {
-		maxuUSDInvestment = _maxuUSDInvestment;
+	function setMaxuUSDInvestment(uint256 maxuUSDInvestment_) external onlyOwner {
+		maxuUSDInvestment = maxuUSDInvestment_;
 	}
 	
 	/********************************************************************************************************/
 	/********************************************* Transfer Limits ******************************************/
 	/********************************************************************************************************/
 	// Transfer Limits
-	mapping(address => bool) _isExcludedFromMaxTransfer;
+	mapping(address => bool) excludedFromMaxTransfer;
 	function setExcludedFromMaxTransfer(address account, bool exclude) external onlyOwner {
-		_isExcludedFromMaxTransfer[account] = exclude;
+		excludedFromMaxTransfer[account] = exclude;
 	}
 	function isExcludedFromMaxTransfer(address acc) external view returns(bool) {
-		return _isExcludedFromMaxTransfer[acc];
+		return excludedFromMaxTransfer[acc];
 	}
 	uint256 maxuUSDTransfer = 50_000_000_000;
 	function getMaxUSDTransfer() external view returns(uint256) {  
 		return maxuUSDTransfer / 10**6;
 	}
-	function setMaxuUSDTransfer(uint256 _maxuUSDTransfer) external onlyOwner {
-		maxuUSDTransfer = _maxuUSDTransfer;
+	function setMaxuUSDTransfer(uint256 maxuUSDTransfer_) external onlyOwner {
+		maxuUSDTransfer = maxuUSDTransfer_;
 	}
 
 	uint256 minuUSDTransfer = 9_999_999;
 	function getMinUSDTransfer() external view returns(uint256) {  
 		return minuUSDTransfer / 10**6;
 	}
-	function setMinuUSDTransfer(uint256 _minuUSDTransfer) external onlyOwner {
-		minuUSDTransfer = _minuUSDTransfer;
+	function setMinuUSDTransfer(uint256 minuUSDTransfer_) external onlyOwner {
+		minuUSDTransfer = minuUSDTransfer_;
 	}
 
 }

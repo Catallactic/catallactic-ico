@@ -42,14 +42,14 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		Finished
 	}
 	CrowdsaleStage private stage = CrowdsaleStage.NotStarted;
-	function setCrowdsaleStage(uint _stage) external onlyOwner {
-		if(uint(CrowdsaleStage.NotStarted) == _stage) {							// 0
+	function setCrowdsaleStage(uint stage_) external onlyOwner {
+		if(uint(CrowdsaleStage.NotStarted) == stage_) {							// 0
 			stage = CrowdsaleStage.NotStarted;
-		} else if (uint(CrowdsaleStage.Ongoing) == _stage) {				// 1
+		} else if (uint(CrowdsaleStage.Ongoing) == stage_) {				// 1
 			stage = CrowdsaleStage.Ongoing;
-		} else if (uint(CrowdsaleStage.OnHold) == _stage) {					// 2
+		} else if (uint(CrowdsaleStage.OnHold) == stage_) {					// 2
 			stage = CrowdsaleStage.OnHold;
-		} else if (uint(CrowdsaleStage.Finished) == _stage) {				// 3
+		} else if (uint(CrowdsaleStage.Finished) == stage_) {				// 3
 			stage = CrowdsaleStage.Finished;
 		}
 	}
@@ -62,34 +62,34 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		return totaluUSDTInvested;
 	}	
 
-	uint256 private HARD_CAP_uUSD = 300_000_000_000;
+	uint256 private hardCapuUSD = 300_000_000_000;
 	function getHardCap() external view returns (uint256) {
-		return HARD_CAP_uUSD / 10**6;
+		return hardCapuUSD / 10**6;
 	}
-	function setHardCapuUSD(uint256 _hardCap) external onlyOwner {
-		HARD_CAP_uUSD = _hardCap;
+	function setHardCapuUSD(uint256 hardCap) external onlyOwner {
+		hardCapuUSD = hardCap;
 	}
 
-	uint256 private SOFT_CAP_uUSD = 50_000_000_000;
+	uint256 private softCapuUSD = 50_000_000_000;
 	function getSoftCap() external view returns (uint256) {
-		return SOFT_CAP_uUSD / 10**6;
+		return softCapuUSD / 10**6;
 	}
-	function setSoftCapuUSD(uint256 _softCap) external onlyOwner {
-		SOFT_CAP_uUSD = _softCap;
+	function setSoftCapuUSD(uint256 softCap) external onlyOwner {
+		softCapuUSD = softCap;
 	}
 
 	// ICO Price
-	uint256 private uUSDT_PER_TOKEN = 0.03*10**6;
-	function getPriceuUSD() external view returns (uint256) {
-		return uUSDT_PER_TOKEN;
+	uint256 private constant UUSDT_PER_TOKEN = 0.03*10**6;
+	function getPriceuUSD() external pure returns (uint256) {
+		return UUSDT_PER_TOKEN;
 	}
 	
 	bool dynamicPrice = false;
 	function gettDynamicPrice() external view returns(bool) {
 		return dynamicPrice;
 	}
-	function setDynamicPrice(bool _dynamicPrice) external onlyOwner {
-		dynamicPrice = _dynamicPrice;
+	function setDynamicPrice(bool dynPrice) external onlyOwner {
+		dynamicPrice = dynPrice;
 	}
 
 	/********************************************************************************************************/
@@ -109,36 +109,36 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		uint256 ptuUSDInvested;
 		uint256 ptAmountInvested;
 	}
-	function getPaymentToken(string calldata _symbol) external view returns(PaymentToken memory) {
-		return paymentTokens[_symbol];
+	function getPaymentToken(string calldata symbol) external view returns(PaymentToken memory) {
+		return paymentTokens[symbol];
 	}
-	function setPaymentToken(string calldata _symbol, address _tokenAddress, address _priceFeed, uint256 _uUSDPerTokens, uint8 _decimals) external onlyOwner {
-		if (paymentTokens[_symbol].ptDecimals == 0) {
-			paymentSymbols.push(_symbol);
+	function setPaymentToken(string calldata symbol, address tokenAdd, address priceFeed, uint256 uUSDPerTokens, uint8 decimals) external onlyOwner {
+		if (paymentTokens[symbol].ptDecimals == 0) {
+			paymentSymbols.push(symbol);
 		}
 
-		paymentTokens[_symbol] = PaymentToken({
-      ptTokenAddress: _tokenAddress,
-      ptPriceFeed: _priceFeed,
-			ptUUSD_PER_TOKEN: _uUSDPerTokens,
-			ptDecimals: _decimals,
+		paymentTokens[symbol] = PaymentToken({
+      ptTokenAddress: tokenAdd,
+      ptPriceFeed: priceFeed,
+			ptUUSD_PER_TOKEN: uUSDPerTokens,
+			ptDecimals: decimals,
 			ptuUSDInvested: 0,
 			ptAmountInvested: 0
     });
 
 	}
-	function deletePaymentToken(string calldata _symbol, uint8 index) external onlyOwner {
-		require(keccak256(bytes(_symbol)) == keccak256(bytes(paymentSymbols[index])), "ERRP_INDX_PAY");
+	function deletePaymentToken(string calldata symbol, uint8 index) external onlyOwner {
+		require(keccak256(bytes(symbol)) == keccak256(bytes(paymentSymbols[index])), "ERRP_INDX_PAY");
 
-		delete paymentTokens[_symbol];
+		delete paymentTokens[symbol];
 
 		paymentSymbols[index] = paymentSymbols[paymentSymbols.length - 1];
 		paymentSymbols.pop();
 	}
 
 	// price update
-	function getUUSD_PER_TOKEN(string calldata _symbol) external view returns (uint256) {
-		AggregatorV3Interface currencyToUsdPriceFeed = AggregatorV3Interface(paymentTokens[_symbol].ptPriceFeed);
+	function getUusdPerToken(string calldata symbol) external view returns (uint256) {
+		AggregatorV3Interface currencyToUsdPriceFeed = AggregatorV3Interface(paymentTokens[symbol].ptPriceFeed);
 		(,int256 answer,,,) = currencyToUsdPriceFeed.latestRoundData();
 		return(uint256(answer) * 10**6 / 10**currencyToUsdPriceFeed.decimals());
 	}
@@ -167,12 +167,12 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 	}
 	mapping (address => Contributions) private contributions;
 
-	function getContribution(address investor, string calldata _symbol) external view returns(uint256){
-		return contributions[investor].conts[_symbol].cAmountInvested;
+	function getContribution(address investor, string calldata symbol) external view returns(uint256){
+		return contributions[investor].conts[symbol].cAmountInvested;
 	}
 
-	function getuUSDContribution(address investor, string calldata _symbol) external view returns(uint256){
-		return contributions[investor].conts[_symbol].cuUSDInvested;
+	function getuUSDContribution(address investor, string calldata symbol) external view returns(uint256){
+		return contributions[investor].conts[symbol].cuUSDInvested;
 	}
 
 	function getuUSDToClaim(address investor) external view returns(uint256){
@@ -188,30 +188,30 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 	fallback() external payable {
 		if(msg.value > 0) depositWithuUSD("COIN", msg.value);																			// exclude unwanted wallet calls
 	}
-	function depositTokens(string calldata _symbol, uint256 _rawAmountWitDecimals) external nonReentrant {
-		depositWithuUSD(_symbol, _rawAmountWitDecimals);
+	function depositTokens(string calldata symbol, uint256 rawAmountWitDecimals) external nonReentrant {
+		depositWithuUSD(symbol, rawAmountWitDecimals);
 	}
 
-	function depositWithuUSD(string memory _symbol, uint256 _rawAmountWitDecimals) internal {
-		if(!dynamicPrice || paymentTokens[_symbol].ptPriceFeed == address(0)) {
-			deposit(_symbol, _rawAmountWitDecimals, _rawAmountWitDecimals * paymentTokens[_symbol].ptUUSD_PER_TOKEN / 10**paymentTokens[_symbol].ptDecimals);
+	function depositWithuUSD(string memory symbol, uint256 rawAmountWitDecimals) internal {
+		if(!dynamicPrice || paymentTokens[symbol].ptPriceFeed == address(0)) {
+			deposit(symbol, rawAmountWitDecimals, rawAmountWitDecimals * paymentTokens[symbol].ptUUSD_PER_TOKEN / 10**paymentTokens[symbol].ptDecimals);
 		} else {
-			AggregatorV3Interface currencyToUsdPriceFeed = AggregatorV3Interface(paymentTokens[_symbol].ptPriceFeed);
+			AggregatorV3Interface currencyToUsdPriceFeed = AggregatorV3Interface(paymentTokens[symbol].ptPriceFeed);
 			(,int256 rawUsdPrice,,,) = currencyToUsdPriceFeed.latestRoundData();
-			paymentTokens[_symbol].ptUUSD_PER_TOKEN = uint256(rawUsdPrice) * 10**6 / 10**currencyToUsdPriceFeed.decimals();
-			deposit(_symbol, _rawAmountWitDecimals, _rawAmountWitDecimals * paymentTokens[_symbol].ptUUSD_PER_TOKEN / 10**paymentTokens[_symbol].ptDecimals);
+			paymentTokens[symbol].ptUUSD_PER_TOKEN = uint256(rawUsdPrice) * 10**6 / 10**currencyToUsdPriceFeed.decimals();
+			deposit(symbol, rawAmountWitDecimals, rawAmountWitDecimals * paymentTokens[symbol].ptUUSD_PER_TOKEN / 10**paymentTokens[symbol].ptDecimals);
 		}
 	}
 
 	// receive contribution
-	function deposit(string memory _symbol, uint256 _rawAmountWitDecimals, uint _uUSDAmount) internal {
+	function deposit(string memory symbol, uint256 rawAmountWitDecimals, uint uUSDAmount) internal {
 		require(stage == CrowdsaleStage.Ongoing, "ERRD_MUST_ONG");																																										// ICO must be ongoing
-		require(!useBlacklist || !_isBlacklisted[msg.sender], 'ERRD_MUSN_BLK');																																				// must not be blacklisted
-		require(_uUSDAmount >= minuUSDTransfer, "ERRD_TRAS_LOW");																																											// transfer amount too low
-		require(_uUSDAmount <= maxuUSDTransfer, "ERRD_TRAS_HIG");																																											// transfer amount too high
-		require((contributions[msg.sender].uUSDToPay +_uUSDAmount < whitelistuUSDThreshold) || _isWhitelisted[msg.sender], 'ERRD_MUST_WHI');					// must be whitelisted
-		require(contributions[msg.sender].uUSDToPay +_uUSDAmount <= maxuUSDInvestment, "ERRD_INVT_HIG");																							// total invested amount too high
-		require(_uUSDAmount + totaluUSDTInvested < HARD_CAP_uUSD, "ERRD_HARD_CAP");																																		// amount higher than available
+		require(!useBlacklist || !blacklisted[msg.sender], 'ERRD_MUSN_BLK');																																				// must not be blacklisted
+		require(uUSDAmount >= minuUSDTransfer, "ERRD_TRAS_LOW");																																											// transfer amount too low
+		require(uUSDAmount <= maxuUSDTransfer, "ERRD_TRAS_HIG");																																											// transfer amount too high
+		require((contributions[msg.sender].uUSDToPay +uUSDAmount < whitelistuUSDThreshold) || whitelisted[msg.sender], 'ERRD_MUST_WHI');					// must be whitelisted
+		require(contributions[msg.sender].uUSDToPay +uUSDAmount <= maxuUSDInvestment, "ERRD_INVT_HIG");																							// total invested amount too high
+		require(uUSDAmount + totaluUSDTInvested < hardCapuUSD, "ERRD_HARD_CAP");																																		// amount higher than available
 
 		// add investor
 		if(!contributions[msg.sender].known) {
@@ -220,63 +220,63 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		}
 
 		// add contribution to investor
-		contributions[msg.sender].conts[_symbol].cAmountInvested += _rawAmountWitDecimals;	// only for refund
-		contributions[msg.sender].conts[_symbol].cuUSDInvested += _uUSDAmount;								// only for audit
+		contributions[msg.sender].conts[symbol].cAmountInvested += rawAmountWitDecimals;	// only for refund
+		contributions[msg.sender].conts[symbol].cuUSDInvested += uUSDAmount;							// only for audit
 
 		// add total to investor
-		contributions[msg.sender].uUSDToPay += _uUSDAmount;																	// only for claim
+		contributions[msg.sender].uUSDToPay += uUSDAmount;																// only for claim
 
 		// add total to payment method
-		paymentTokens[_symbol].ptuUSDInvested += _uUSDAmount;																// only for audit
-		paymentTokens[_symbol].ptAmountInvested += _rawAmountWitDecimals;										// only for audit
+		paymentTokens[symbol].ptuUSDInvested += uUSDAmount;																// only for audit
+		paymentTokens[symbol].ptAmountInvested += rawAmountWitDecimals;										// only for audit
 
 		// add total
-		totaluUSDTInvested += _uUSDAmount;										// lifecycle
+		totaluUSDTInvested += uUSDAmount;																									// lifecycle
 
-		emit FundsReceived(msg.sender, _symbol, _rawAmountWitDecimals);
+		emit FundsReceived(msg.sender, symbol, rawAmountWitDecimals);
 
 		// move tokens if tokens investment
-		if (keccak256(bytes(_symbol)) != keccak256(bytes("COIN"))) {
-			require(IERC20(paymentTokens[_symbol].ptTokenAddress).allowance(msg.sender, address(this)) >= _rawAmountWitDecimals, "ERRD_ALLO_LOW");				// insuffient allowance
-			IERC20(paymentTokens[_symbol].ptTokenAddress).safeTransferFrom(msg.sender, address(this), _rawAmountWitDecimals);
+		if (keccak256(bytes(symbol)) != keccak256(bytes("COIN"))) {
+			require(IERC20(paymentTokens[symbol].ptTokenAddress).allowance(msg.sender, address(this)) >= rawAmountWitDecimals, "ERRD_ALLO_LOW");				// insuffient allowance
+			IERC20(paymentTokens[symbol].ptTokenAddress).safeTransferFrom(msg.sender, address(this), rawAmountWitDecimals);
 		}
 
 	}
-	event FundsReceived (address _backer, string symbol, uint _amount);
+	event FundsReceived (address backer, string symbol, uint amount);
 
 	/********************************************************************************************************/
 	/**************************************************** Refund ********************************************/
 	/********************************************************************************************************/
-	function refund(string calldata _symbol) external nonReentrant {
-		refundInvestor(_symbol, msg.sender);
+	function refund(string calldata symbol) external nonReentrant {
+		refundInvestor(symbol, msg.sender);
 	}
-	function refundAll(string calldata _symbol) external onlyOwner {
+	function refundAll(string calldata symbol) external onlyOwner {
 		uint investorsLength = investors.length;
 		for (uint i = 0; i < investorsLength; i++) {
-			refundInvestor(_symbol, investors[i]);
+			refundInvestor(symbol, investors[i]);
 		}
 	}
-	function refundInvestor(string calldata _symbol, address investor) internal {
+	function refundInvestor(string calldata symbol, address investor) internal {
 		require(stage == CrowdsaleStage.Finished, "ERRR_MUST_FIN");																																										// ICO must be finished
-		require(totaluUSDTInvested < SOFT_CAP_uUSD, "ERRR_PASS_SOF");																																									// Passed SoftCap. No refund
-		uint256 rawAmount = contributions[investor].conts[_symbol].cAmountInvested;
+		require(totaluUSDTInvested < softCapuUSD, "ERRR_PASS_SOF");																																									// Passed SoftCap. No refund
+		uint256 rawAmount = contributions[investor].conts[symbol].cAmountInvested;
 		require(rawAmount > 0, "ERRR_ZERO_REF");																																																			// Nothing to refund
 
 		// clear variables
-		contributions[investor].conts[_symbol].cAmountInvested = 0;
-		contributions[investor].conts[_symbol].cuUSDInvested = 0;
+		contributions[investor].conts[symbol].cAmountInvested = 0;
+		contributions[investor].conts[symbol].cuUSDInvested = 0;
 		contributions[investor].uUSDToPay = 0;
 
-		emit FundsRefunded(investor, _symbol, rawAmount);
+		emit FundsRefunded(investor, symbol, rawAmount);
 
 		// do refund
 		if (rawAmount > 0) {
-			if (keccak256(bytes(_symbol)) == keccak256(bytes("COIN"))) {
+			if (keccak256(bytes(symbol)) == keccak256(bytes("COIN"))) {
 				(bool success, ) = payable(investor).call{ value: rawAmount }("");
 				require(success, "ERRR_WITH_REF");																																																			// Unable to refund
 
 			} else {
-				IERC20(paymentTokens[_symbol].ptTokenAddress).safeTransfer(investor, rawAmount);
+				IERC20(paymentTokens[symbol].ptTokenAddress).safeTransfer(investor, rawAmount);
 			}
 		}
 
@@ -297,10 +297,10 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 	}
 	function claimInvestor(address investor) internal {
 		require(stage == CrowdsaleStage.Finished, "ERRC_MUST_FIN");																																										// ICO must be finished
-		require(totaluUSDTInvested > SOFT_CAP_uUSD, "ERRC_NPAS_SOF");																																									// Not passed SoftCap
+		require(totaluUSDTInvested > softCapuUSD, "ERRC_NPAS_SOF");																																										// Not passed SoftCap
 		require(tokenAddress != address(0x0), "ERRC_MISS_TOK");																																												// Provide Token
 
-		uint claimed = contributions[investor].uUSDToPay * 10**18 / uUSDT_PER_TOKEN;
+		uint claimed = contributions[investor].uUSDToPay * 10**18 / UUSDT_PER_TOKEN;
 
 		// clear variables
 		uint paymentSymbolsLength = paymentSymbols.length;
@@ -317,12 +317,12 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 			IERC20(tokenAddress).safeTransferFrom(owner(), investor, claimed);
 		}
 	}
-	event FundsClaimed(address _backer, uint _amount);
+	event FundsClaimed(address backer, uint amount);
 
 	// tokenWalletAddress
 	address payable tokenAddress;
-	function setTokenAddress(address payable _address) external onlyOwner {
-		tokenAddress = _address;
+	function setTokenAddress(address payable add) external onlyOwner {
+		tokenAddress = add;
 	}
 	function getTokenAddress() external view returns (address) {
 		return tokenAddress;
@@ -331,37 +331,37 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 	/********************************************************************************************************/
 	/*************************************************** Withdraw *******************************************/
 	/********************************************************************************************************/
-	function withdraw(string calldata _symbol, uint8 percentage) external nonReentrant onlyOwner {
+	function withdraw(string calldata symbol, uint8 percentage) external nonReentrant onlyOwner {
 		require(stage == CrowdsaleStage.Finished, "ERRW_MUST_FIN");																																										// ICO must be finished
-		require(totaluUSDTInvested > SOFT_CAP_uUSD, "ERRW_NPAS_SOF");																																									// Not passed SoftCap
+		require(totaluUSDTInvested > softCapuUSD, "ERRW_NPAS_SOF");																																									// Not passed SoftCap
 		require(targetWalletAddress != address(0x0), "ERRW_MISS_WAL");																																								// Provide Wallet
 
-		paymentTokens[_symbol].ptuUSDInvested -= paymentTokens[_symbol].ptuUSDInvested * percentage / 100;
-		paymentTokens[_symbol].ptAmountInvested -= paymentTokens[_symbol].ptAmountInvested * percentage / 100;
+		paymentTokens[symbol].ptuUSDInvested -= paymentTokens[symbol].ptuUSDInvested * percentage / 100;
+		paymentTokens[symbol].ptAmountInvested -= paymentTokens[symbol].ptAmountInvested * percentage / 100;
 
-		if (keccak256(bytes(_symbol)) == keccak256(bytes("COIN"))) {
+		if (keccak256(bytes(symbol)) == keccak256(bytes("COIN"))) {
 			uint amount = address(this).balance;
 			require(amount > 0, "ERRR_ZERO_WIT");																																																				// Nothing to withdraw
 
 			(bool success, ) = targetWalletAddress.call{ value: amount * percentage / 100 }("");
 			require(success, "ERRR_WITH_BAD");																																																					// Unable to withdraw
-			emit FundsWithdrawn(_symbol, amount);
+			emit FundsWithdrawn(symbol, amount);
 
 		} else {
-			address paymentTokenAddress = paymentTokens[_symbol].ptTokenAddress;
+			address paymentTokenAddress = paymentTokens[symbol].ptTokenAddress;
 			uint amount = IERC20(paymentTokenAddress).balanceOf(address(this));
 			require(amount > 0, "ERRR_ZERO_WIT");																																																				// Nothing to withdraw
 
 			IERC20(paymentTokenAddress).safeTransfer(targetWalletAddress, amount * percentage / 100 );
-			emit FundsWithdrawn(_symbol, amount);
+			emit FundsWithdrawn(symbol, amount);
 		}
 	}
-	event FundsWithdrawn(string _symbol, uint _amount);
+	event FundsWithdrawn(string symbol, uint amount);
 
 	// targetWalletAddress
 	address payable targetWalletAddress;
-	function setTargetWalletAddress(address payable _address) external onlyOwner {
-		targetWalletAddress = _address;
+	function setTargetWalletAddress(address payable add) external onlyOwner {
+		targetWalletAddress = add;
 	}
 	function getTargetWalletAddress() external view returns (address) {
 		return targetWalletAddress;

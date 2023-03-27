@@ -35,15 +35,15 @@ contract DemoToken is GasClickAntiWhale, ReentrancyGuard, IERC20 {
 	/********************************************************************************************************/
 	constructor() {
 
-		_isExcludedFromMaxInvestment[address(this)] = true;
-		_isExcludedFromMaxInvestment[_projectWalletAddress] = true;
-		_isExcludedFromMaxInvestment[_liquidityWalletAddress] = true;
-		_isExcludedFromMaxInvestment[msg.sender] = true;
+		excludedFromMaxInvestment[address(this)] = true;
+		excludedFromMaxInvestment[_projectWalletAddress] = true;
+		excludedFromMaxInvestment[_liquidityWalletAddress] = true;
+		excludedFromMaxInvestment[msg.sender] = true;
 
-		_isExcludedFromMaxTransfer[address(this)] = true;
-		_isExcludedFromMaxTransfer[_projectWalletAddress] = true;
-		_isExcludedFromMaxTransfer[_liquidityWalletAddress] = true;
-		_isExcludedFromMaxTransfer[msg.sender] = true;
+		excludedFromMaxTransfer[address(this)] = true;
+		excludedFromMaxTransfer[_projectWalletAddress] = true;
+		excludedFromMaxTransfer[_liquidityWalletAddress] = true;
+		excludedFromMaxTransfer[msg.sender] = true;
 
 		_isExcludedFromFees[owner()] = true;
 		_isExcludedFromFees[_projectWalletAddress] = true;

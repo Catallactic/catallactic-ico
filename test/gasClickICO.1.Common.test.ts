@@ -255,13 +255,13 @@ describe("gasClickICO.1.Common.test", function () {
 		await expect(ico.deletePaymentToken('USDT', 1)).not.to.be.reverted;
 		expect(await ico.getPaymentSymbols()).to.deep.equal([ 'COIN' ]);
 
-		/*let COIN = await ico.getUUSD_PER_TOKEN('COIN');
+		/*let COIN = await ico.getUusdPerToken('COIN');
 		console.log('COIN ' + COIN);
-		let USDT = await ico.getUUSD_PER_TOKEN('USDT');
+		let USDT = await ico.getUusdPerToken('USDT');
 		console.log('USDT ' + USDT);
-		let BNB = await ico.getUUSD_PER_TOKEN('BNB');
+		let BNB = await ico.getUusdPerToken('BNB');
 		console.log('BNB ' + BNB);
-		let MATIC = await ico.getUUSD_PER_TOKEN('MATIC');
+		let MATIC = await ico.getUusdPerToken('MATIC');
 		console.log('MATIC ' + MATIC);*/
 	});
 
