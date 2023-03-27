@@ -28,12 +28,14 @@ contract GasClickAntiWhale is Ownable {
 	/********************************************************************************************************/
 	// whitelist Threshold
 	uint256 whitelistuUSDThreshold = 10_000_000_000;
-	function setWhitelistuUSDThreshold(uint256 whitelistuUSDThreshold_) external onlyOwner {
-		whitelistuUSDThreshold = whitelistuUSDThreshold_;
-	}
 	function getWhitelistuUSDThreshold() external view returns (uint256) {
 		return whitelistuUSDThreshold;
 	}
+	function setWhitelistuUSDThreshold(uint256 whitelistuUSDThreshold_) external onlyOwner {
+		whitelistuUSDThreshold = whitelistuUSDThreshold_;
+		emit UpdatedWhitelistThreshold(whitelistuUSDThreshold_);
+	}
+	event UpdatedWhitelistThreshold(uint256 whitelistuUSDThreshold_);
 
 	// whitelisted addresses
 	address[] private whitelistedAccs;
@@ -103,13 +105,15 @@ contract GasClickAntiWhale is Ownable {
 		return excludedFromMaxInvestment[acc];
 	}
 	uint256 maxuUSDInvestment = 100_000_000_000;
-	function getMaxUSDInvestment() external view returns(uint256) {  
+	function getMaxUSDInvestment() external view returns(uint256) {
 		return maxuUSDInvestment / 10**6;
 	}
 	function setMaxuUSDInvestment(uint256 maxuUSDInvestment_) external onlyOwner {
 		maxuUSDInvestment = maxuUSDInvestment_;
+		emit UpdatedMaxInvestment(maxuUSDInvestment_);
 	}
-	
+	event UpdatedMaxInvestment(uint256 maxuUSDInvestment_);
+
 	/********************************************************************************************************/
 	/********************************************* Transfer Limits ******************************************/
 	/********************************************************************************************************/
@@ -127,7 +131,9 @@ contract GasClickAntiWhale is Ownable {
 	}
 	function setMaxuUSDTransfer(uint256 maxuUSDTransfer_) external onlyOwner {
 		maxuUSDTransfer = maxuUSDTransfer_;
+		emit UpdatedMaxTransfer(maxuUSDTransfer_);
 	}
+	event UpdatedMaxTransfer(uint256 maxuUSDTransfer_);
 
 	uint256 minuUSDTransfer = 9_999_999;
 	function getMinUSDTransfer() external view returns(uint256) {  
@@ -135,6 +141,8 @@ contract GasClickAntiWhale is Ownable {
 	}
 	function setMinuUSDTransfer(uint256 minuUSDTransfer_) external onlyOwner {
 		minuUSDTransfer = minuUSDTransfer_;
+		emit UpdatedMinTransfer(minuUSDTransfer_);
 	}
+	event UpdatedMinTransfer(uint256 minuUSDTransfer_);
 
 }
