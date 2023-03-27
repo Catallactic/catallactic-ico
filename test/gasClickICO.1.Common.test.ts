@@ -169,7 +169,7 @@ describe("gasClickICO.1.Common.test", function () {
 		await expect(ico.connect(addr1).deletePaymentToken('DOGE', 2)).to.be.revertedWith('Ownable: caller is not the owner');
 
 		await expect(ico.connect(addr1).setTokenAddress(addr1.address)).to.be.revertedWith('Ownable: caller is not the owner');
-		await expect(ico.connect(addr1).refundAll("FOO")).to.be.revertedWith('Ownable: caller is not the owner');
+		await expect(ico.connect(addr1).refundAddress("FOO", addr1.address)).to.be.revertedWith('Ownable: caller is not the owner');
 		await expect(ico.connect(addr1).setTargetWalletAddress(addr1.address)).to.be.revertedWith('Ownable: caller is not the owner');
 		await expect(ico.connect(addr1).claimAll()).to.be.revertedWith('Ownable: caller is not the owner');
 		await expect(ico.connect(addr1).withdraw('USDT', 100)).to.be.revertedWith('Ownable: caller is not the owner');

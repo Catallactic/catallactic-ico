@@ -356,6 +356,7 @@ describe("gasClickICO.2.Coins.test", function () {
 		expect(contributed3).to.equal(0);
 
 		expect(await ethers.provider.getBalance(ico.address)).to.equal(0);
+		
 	});
 
 	it("Should be able to refund all Coins", async() => {
@@ -368,15 +369,22 @@ describe("gasClickICO.2.Coins.test", function () {
 
 		await ico.setCrowdsaleStage(3);
 
+		// refund all
 		let contributed1 = await ico.getContribution(addr1.address, "COIN");
+		await expect(await ico.refundAddress("COIN", addr1.address)).to.changeEtherBalances([ico, addr1], [contributed1.mul(-1), contributed1]);
+		await expect(await ico.getContribution(addr1.address, "COIN")).to.equal(0);
+		await expect(await ico.getuUSDToClaim(addr1.address)).to.equal(0);
 		let contributed2 = await ico.getContribution(addr2.address, "COIN");
+		await expect(await ico.refundAddress("COIN", addr2.address)).to.changeEtherBalances([ico, addr2], [contributed2.mul(-1), contributed2]);
+		await expect(await ico.getContribution(addr2.address, "COIN")).to.equal(0);
+		await expect(await ico.getuUSDToClaim(addr2.address)).to.equal(0);
 		let contributed3 = await ico.getContribution(addr3.address, "COIN");
-		let totalContributed = contributed1.add(contributed2).add(contributed3);
-
-		await expect(await ico.refundAll("COIN"))
-			.to.changeEtherBalances([ico, addr1, addr2, addr3], [totalContributed.mul(-1), contributed1, contributed2, contributed3]);
+		await expect(await ico.refundAddress("COIN", addr3.address)).to.changeEtherBalances([ico, addr3], [contributed3.mul(-1), contributed3]);
+		await expect(await ico.getContribution(addr3.address, "COIN")).to.equal(0);
+		await expect(await ico.getuUSDToClaim(addr3.address)).to.equal(0);
 
 		expect(await ethers.provider.getBalance(ico.address)).to.equal(0);
+
 	});
 		
 	/********************************************************************************************************/

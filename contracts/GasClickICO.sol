@@ -255,11 +255,8 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 	function refund(string calldata symbol) external nonReentrant {
 		refundInvestor(symbol, msg.sender);
 	}
-	function refundAll(string calldata symbol) external onlyOwner {
-		uint investorsLength = investors.length;
-		for (uint i = 0; i < investorsLength; i++) {
-			refundInvestor(symbol, investors[i]);
-		}
+	function refundAddress(string calldata symbol, address investor) external nonReentrant onlyOwner {
+		refundInvestor(symbol, investor);
 	}
 	function refundInvestor(string calldata symbol, address investor) internal {
 		require(stage == CrowdsaleStage.Finished, "ERRR_MUST_FIN");																																										// ICO must be finished
