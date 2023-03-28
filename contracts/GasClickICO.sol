@@ -292,6 +292,9 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 	function claim() external nonReentrant {
 		claimInvestor(msg.sender);
 	}
+	function claimAddress(address investor) external nonReentrant onlyOwner {
+		claimInvestor(investor);
+	}
 	function claimAll() external onlyOwner {
 		uint investorsLength = investors.length;
 		for (uint i = 0; i < investorsLength; i++) {
