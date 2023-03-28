@@ -28,7 +28,7 @@ contract GasClickAntiWhale is Ownable {
 	/********************************************** WhiteLists **********************************************/
 	/********************************************************************************************************/
 	// whitelist Threshold
-	uint256 whitelistuUSDThreshold = 10_000_000_000;
+	uint256 whitelistuUSDThreshold = 1_000_000_000;
 	function getWhitelistuUSDThreshold() external view returns (uint256) {
 		return whitelistuUSDThreshold;
 	}
@@ -126,7 +126,7 @@ contract GasClickAntiWhale is Ownable {
 	function isExcludedFromMaxTransfer(address acc) external view returns(bool) {
 		return excludedFromMaxTransfer[acc];
 	}
-	uint256 maxuUSDTransfer = 50_000_000_000;
+	uint256 maxuUSDTransfer = 100_000_000_000;
 	function getMaxUSDTransfer() external view returns(uint256) {  
 		return maxuUSDTransfer / 10**6;
 	}
