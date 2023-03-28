@@ -309,7 +309,7 @@ contract FOO is Context, IERC20, IERC20Metadata {
 		 * - `account` cannot be the zero address.
 		 * - `account` must have at least `amount` tokens.
 		 */
-		function _burn(address account, uint256 amount) internal virtual {
+		/*function _burn(address account, uint256 amount) internal virtual {
 				require(account != address(0), "ERC20: burn from the zero address");
 
 				_beforeTokenTransfer(account, address(0), amount);
@@ -325,7 +325,7 @@ contract FOO is Context, IERC20, IERC20Metadata {
 				emit Transfer(account, address(0), amount);
 
 				_afterTokenTransfer(account, address(0), amount);
-		}
+		}*/
 
 		/**
 		 * @dev Sets `amount` as the allowance of `spender` over the `owner` s tokens.
