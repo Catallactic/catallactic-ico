@@ -259,10 +259,10 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		refundInvestor(symbol, investor);
 	}
 	function refundInvestor(string calldata symbol, address investor) internal {
-		require(stage == CrowdsaleStage.Finished, "ERRR_MUST_FIN");																																										// ICO must be finished
+		require(stage == CrowdsaleStage.Finished, "ERRR_MUST_FIN");																																									// ICO must be finished
 		require(totaluUSDTInvested < softCapuUSD, "ERRR_PASS_SOF");																																									// Passed SoftCap. No refund
 		uint256 rawAmount = contributions[investor].conts[symbol].cAmountInvested;
-		require(rawAmount > 0, "ERRR_ZERO_REF");																																																			// Nothing to refund
+		require(rawAmount > 0, "ERRR_ZERO_REF");																																																		// Nothing to refund
 
 		// clear variables
 		contributions[investor].conts[symbol].cAmountInvested = 0;
@@ -274,6 +274,7 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		// do refund
 		if (rawAmount > 0) {
 			if (keccak256(bytes(symbol)) == keccak256(bytes("COIN"))) {
+				//slither-disable-next-line low-level-calls
 				(bool success, ) = payable(investor).call{ value: rawAmount }("");
 				require(success, "ERRR_WITH_REF");																																																			// Unable to refund
 
@@ -347,6 +348,7 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 			uint amount = address(this).balance;
 			require(amount > 0, "ERRR_ZERO_WIT");																																																				// Nothing to withdraw
 
+			//slither-disable-next-line low-level-calls
 			(bool success, ) = targetWalletAddress.call{ value: amount * percentage / 100 }("");
 			require(success, "ERRR_WITH_BAD");																																																					// Unable to withdraw
 			emit FundsWithdrawn(symbol, amount);
