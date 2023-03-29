@@ -498,63 +498,6 @@ describe("gasClickICO.2.Coins.test", function () {
 
 	});
 
-	it("Should be able to ClaimAll Coins", async() => {
-
-		// prepare test
-		await ico.setCrowdsaleStage(1);
-
-		await ico.setMaxuUSDTransfer(20_000_000 * 10**6);
-		await ico.setMaxuUSDInvestment(140_000_000 * 10**6);
-		await ico.setWhitelistuUSDThreshold(20_000_000 * 10**6);
-
-		await ico.setTokenAddress(token.address);
-
-		await expect(testTransferCoin(addr1, 19000)).not.to.be.reverted;
-		await expect(testTransferCoin(addr2, 19000)).not.to.be.reverted;
-		await expect(testTransferCoin(addr3, 19000)).not.to.be.reverted;
-
-		await ico.setCrowdsaleStage(3);
-
-		let price: number = await ico.getPriceuUSD();
-		console.log("price " + price);
-
-		// calculating contributions
-		let uUSDContributed1 = await ico.getuUSDToClaim(addr1.address);
-		let numTokensWithDecimals1 = BigInt(uUSDContributed1) * BigInt(10**18) / BigInt(price);
-		console.log("uUSDContributed1 " + uUSDContributed1 + " numTokens1 " + numTokensWithDecimals1);
-		let uUSDContributed2 = await ico.getuUSDToClaim(addr2.address);
-		let numTokensWithDecimals2 = BigInt(uUSDContributed2) * BigInt(10**18) / BigInt(price);
-		console.log("uUSDContributed2 " + uUSDContributed2 + " numTokens2 " + numTokensWithDecimals2);
-		let uUSDContributed3 = await ico.getuUSDToClaim(addr3.address);
-		let numTokensWithDecimals3 = BigInt(uUSDContributed3) * BigInt(10**18) / BigInt(price);
-		console.log("uUSDContributed3 " + uUSDContributed3 + " numTokens3 " + numTokensWithDecimals3);
-		let uUSDContributed = uUSDContributed1.add(uUSDContributed2).add(uUSDContributed3);
-		let numTokensTotalWithDecimals = numTokensWithDecimals1 + numTokensWithDecimals2 + numTokensWithDecimals3;
-		console.log("TotaluUSDContributed " + uUSDContributed + " numTokensTotal " + numTokensTotalWithDecimals);
-
-		// approve from owner to ico
-		console.log("Owner " + owner.address + " Approving allowance for " + ico.address + " for " + numTokensTotalWithDecimals);
-		await token.approve(ico.address, numTokensTotalWithDecimals);
-		console.log("Owner " + owner.address + " Approved allowance for " + ico.address + " for " + numTokensTotalWithDecimals);
-
-		// transfer tokens to investors
-		await expect(() => ico.claimAll())
-			.to.changeTokenBalances(token, [owner, addr1, addr2, addr3], [BigInt(-1) * numTokensTotalWithDecimals, numTokensWithDecimals1, numTokensWithDecimals2, numTokensWithDecimals3]);
-	
-		// emptied contributions
-		expect(await ico.getuUSDToClaim(addr1.address)).to.equal(0);
-		expect(await ico.getContribution(addr1.address, 'COIN')).to.equal(0);
-		expect(await ico.getuUSDContribution(addr1.address, 'COIN')).to.equal(0);
-
-		expect(await ico.getuUSDToClaim(addr2.address)).to.equal(0);
-		expect(await ico.getContribution(addr2.address, 'COIN')).to.equal(0);
-		expect(await ico.getuUSDContribution(addr2.address, 'COIN')).to.equal(0);
-
-		expect(await ico.getuUSDToClaim(addr3.address)).to.equal(0);
-		expect(await ico.getContribution(addr3.address, 'COIN')).to.equal(0);
-		expect(await ico.getuUSDContribution(addr3.address, 'COIN')).to.equal(0);
-	});
-
 	/********************************************************************************************************/
 	/*********************************************** Withdraw ***********************************************/
 	/********************************************************************************************************/
