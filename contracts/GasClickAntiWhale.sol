@@ -71,12 +71,14 @@ contract GasClickAntiWhale is Ownable {
 	/********************************************************************************************************/
 	// blacklist flag
 	bool useBlacklist;
-	function setUseBlacklist(bool useBlacklist_) external onlyOwner {
-		useBlacklist = useBlacklist_;
-	}
 	function getUseBlacklist() external view returns (bool) {
 		return useBlacklist;
 	}
+	function setUseBlacklist(bool useBlacklist_) external onlyOwner {
+		useBlacklist = useBlacklist_;
+		emit UpdatedUseBlacklist(useBlacklist_);
+	}
+	event UpdatedUseBlacklist(bool useBlacklist_);
 
 	// blacklisted addresses
 	address[] private blacklistedAccs;

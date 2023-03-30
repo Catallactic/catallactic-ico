@@ -53,7 +53,10 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		} else if (uint(CrowdsaleStage.Finished) == stage_) {				// 3
 			stage = CrowdsaleStage.Finished;
 		}
+
+		emit UpdatedCrowdsaleStage(stage_);
 	}
+	event UpdatedCrowdsaleStage(uint stage_);
 
 	/********************************************************************************************************/
 	/*********************************************** Invested ***********************************************/
@@ -95,7 +98,9 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 	}
 	function setDynamicPrice(bool dynPrice) external onlyOwner {
 		dynamicPrice = dynPrice;
+		emit UpdatedDynamicPrice(dynPrice);
 	}
+	event UpdatedDynamicPrice(bool dynPrice);
 
 	/********************************************************************************************************/
 	/******************************************* Payment Tokens *********************************************/
@@ -133,7 +138,10 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 			ptAmountInvested: 0
     });
 
+		emit AddedPaymentToken(symbol);
 	}
+	event AddedPaymentToken(string symbol);
+
 	function deletePaymentToken(string calldata symbol, uint8 index) external onlyOwner {
 		require(keccak256(bytes(symbol)) == keccak256(bytes(paymentSymbols[index])), "ERRP_INDX_PAY");
 
@@ -141,7 +149,10 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 
 		paymentSymbols[index] = paymentSymbols[paymentSymbols.length - 1];
 		paymentSymbols.pop();
+
+		emit DeletedPaymentToken(symbol);
 	}
+	event DeletedPaymentToken(string symbol);
 
 	// price update
 	function getUusdPerToken(string calldata symbol) external view returns (uint256) {
@@ -332,7 +343,11 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		require(add !=  address(0), "ERRW_INVA_ADD");
 
 		tokenAddress = add;
+	
+		emit UpdatedTokenAddress(add);
 	}
+	event UpdatedTokenAddress(address payable add);
+
 	function getTokenAddress() external view returns (address) {
 		return tokenAddress;
 	}
@@ -374,7 +389,11 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		require(add !=  address(0), "ERRW_INVA_ADD");
 
 		targetWalletAddress = add;
+
+		emit UpdatedTargetWalletAddress(add);
 	}
+	event UpdatedTargetWalletAddress(address payable add);
+
 	function getTargetWalletAddress() external view returns (address) {
 		return targetWalletAddress;
 	}
