@@ -66,6 +66,12 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		return totaluUSDTInvested;
 	}	
 
+	/**
+	 * We need to make HardCap updateable to allow a multichain funding round. 
+	 * We need multichain funding round to give oppportunity to both, retail investors, which invest small amounts 
+	 * and are impacted by transaction fees and VCs that are happy to invest in costly chains.
+	 * There is not a crosschain supply integrity solution in current state of arts
+	 */
 	uint256 private hardCapuUSD = 300_000_000_000;
 	function getHardCap() external view returns (uint256) {
 		return hardCapuUSD / 10**6;
@@ -76,6 +82,12 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 	}
 	event UpdatedHardCap(uint256 hardCap);
 
+	/**
+	 * We need to make HardCap updateable to allow a multichain funding round. 
+	 * We need multichain funding round to give oppportunity to both, retail investors, which invest small amounts 
+	 * and are impacted by transaction fees and VCs that are happy to invest in costly chains.
+	 * There is not a crosschain supply integrity solution in current state of arts
+	 */
 	uint256 private softCapuUSD = 50_000_000_000;
 	function getSoftCap() external view returns (uint256) {
 		return softCapuUSD / 10**6;
