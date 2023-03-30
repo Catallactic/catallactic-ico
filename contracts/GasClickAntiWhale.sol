@@ -52,13 +52,19 @@ contract GasClickAntiWhale is Ownable {
 	function isWhitelisted(address user) external view returns (bool) {
 		return whitelisted[user];
 	}
+	
 	function whitelistUser(address user) external onlyOwner {
 		whitelisted[user] = true;
 		whitelistedAccs.push(user);
+		emit WhitelistedUser(user);
 	}
+	event WhitelistedUser(address user);
+
 	function unwhitelistUser(address user) external onlyOwner {
 		whitelisted[user] = false;
+		emit UnwhitelistedUser(user);
 	}
+	event UnwhitelistedUser(address user);
 
 	/********************************************************************************************************/
 	/********************************************** Blacklists **********************************************/
@@ -86,25 +92,34 @@ contract GasClickAntiWhale is Ownable {
 	function isBlacklisted(address user) external view returns (bool) {
 		return blacklisted[user];
 	}
+
 	function blacklistUser(address user) external onlyOwner {
 		blacklisted[user] = true;
 		blacklistedAccs.push(user);
+		emit BlacklistedUser(user);
 	}
+	event BlacklistedUser(address user);
+
 	function unblacklistUser(address user) external onlyOwner {
 		blacklisted[user] = false;
+		emit UnblacklistedUser(user);
 	}
+	event UnblacklistedUser(address user);
 
 	/********************************************************************************************************/
 	/********************************************* Investment Limits ****************************************/
 	/********************************************************************************************************/
 	// Investment Limits
 	mapping(address => bool) excludedFromMaxInvestment;
-	function setExcludedFromMaxInvestment(address account, bool exclude) external onlyOwner {
-		excludedFromMaxInvestment[account] = exclude;
-	}
-	function isExcludedFromMaxInvestment(address acc) external view returns(bool) {
+		function isExcludedFromMaxInvestment(address acc) external view returns(bool) {
 		return excludedFromMaxInvestment[acc];
 	}
+	function setExcludedFromMaxInvestment(address account, bool exclude) external onlyOwner {
+		excludedFromMaxInvestment[account] = exclude;
+		emit ExcludedFromMaxInvestment(account, exclude);
+	}
+	event ExcludedFromMaxInvestment(address account, bool exclude);
+
 	uint256 maxuUSDInvestment = 100_000_000_000;
 	function getMaxUSDInvestment() external view returns(uint256) {
 		return maxuUSDInvestment / 10**6;
@@ -120,12 +135,15 @@ contract GasClickAntiWhale is Ownable {
 	/********************************************************************************************************/
 	// Transfer Limits
 	mapping(address => bool) excludedFromMaxTransfer;
-	function setExcludedFromMaxTransfer(address account, bool exclude) external onlyOwner {
-		excludedFromMaxTransfer[account] = exclude;
-	}
 	function isExcludedFromMaxTransfer(address acc) external view returns(bool) {
 		return excludedFromMaxTransfer[acc];
 	}
+	function setExcludedFromMaxTransfer(address account, bool exclude) external onlyOwner {
+		excludedFromMaxTransfer[account] = exclude;
+		emit ExcludedFromMaxTransfer(account, exclude);
+	}
+	event ExcludedFromMaxTransfer(address account, bool exclude);
+
 	uint256 maxuUSDTransfer = 100_000_000_000;
 	function getMaxUSDTransfer() external view returns(uint256) {  
 		return maxuUSDTransfer / 10**6;
