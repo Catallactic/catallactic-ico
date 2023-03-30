@@ -118,6 +118,8 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		return paymentTokens[symbol];
 	}
 	function setPaymentToken(string calldata symbol, address tokenAdd, address priceFeed, uint256 uUSDPerTokens, uint8 decimals) external onlyOwner {
+		require(tokenAdd !=  address(0), "ERRW_INVA_ADD");
+
 		if (paymentTokens[symbol].ptDecimals == 0) {
 			paymentSymbols.push(symbol);
 		}
@@ -173,14 +175,17 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 	mapping (address => Contributions) private contributions;
 
 	function getContribution(address investor, string calldata symbol) external view returns(uint256){
+		require(investor !=  address(0), "ERRW_INVA_ADD");
 		return contributions[investor].conts[symbol].cAmountInvested;
 	}
 
 	function getuUSDContribution(address investor, string calldata symbol) external view returns(uint256){
+		require(investor !=  address(0), "ERRW_INVA_ADD");
 		return contributions[investor].conts[symbol].cuUSDInvested;
 	}
 
 	function getuUSDToClaim(address investor) external view returns(uint256){
+		require(investor !=  address(0), "ERRW_INVA_ADD");
 		return contributions[investor].uUSDToPay;
 	}
 
@@ -261,6 +266,7 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 	function refundInvestor(string calldata symbol, address investor) internal {
 		require(stage == CrowdsaleStage.Finished, "ERRR_MUST_FIN");																																									// ICO must be finished
 		require(totaluUSDTInvested < softCapuUSD, "ERRR_PASS_SOF");																																									// Passed SoftCap. No refund
+		require(investor !=  address(0), "ERRW_INVA_ADD");
 		uint256 rawAmount = contributions[investor].conts[symbol].cAmountInvested;
 		require(rawAmount > 0, "ERRR_ZERO_REF");																																																		// Nothing to refund
 
@@ -298,6 +304,7 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 	function claimInvestor(address investor) internal {
 		require(stage == CrowdsaleStage.Finished, "ERRC_MUST_FIN");																																										// ICO must be finished
 		require(totaluUSDTInvested > softCapuUSD, "ERRC_NPAS_SOF");																																										// Not passed SoftCap
+		require(investor !=  address(0), "ERRW_INVA_ADD");
 		require(tokenAddress != address(0x0), "ERRC_MISS_TOK");																																												// Provide Token
 
 		uint claimed = contributions[investor].uUSDToPay * 10**18 / UUSDT_PER_TOKEN;

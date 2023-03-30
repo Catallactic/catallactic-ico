@@ -237,11 +237,11 @@ describe("gasClickICO.1.Common.test", function () {
 		// create multiple payment tokens
 		await ico.setPaymentToken("COIN", ico.address, "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", Math.floor(1100*1e6), 18);
 		expect(await ico.getPaymentSymbols()).to.deep.equal([ 'COIN', 'DOGE' ]);
-		await ico.setPaymentToken("USDT", "0x0000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000", Math.floor(1 * 10**6), 18);
+		await ico.setPaymentToken("USDT", ico.address, "0x0000000000000000000000000000000000000000", Math.floor(1 * 10**6), 18);
 		expect(await ico.getPaymentSymbols()).to.deep.equal([ 'COIN', 'DOGE', 'USDT' ]);
-		await ico.setPaymentToken("BNB", "0x0000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000", Math.floor(258.1 * 10**6), 18);
+		await ico.setPaymentToken("BNB", ico.address, "0x0000000000000000000000000000000000000000", Math.floor(258.1 * 10**6), 18);
 		expect(await ico.getPaymentSymbols()).to.deep.equal([ 'COIN', 'DOGE', 'USDT', 'BNB' ]);
-		await ico.setPaymentToken("MATIC", "0x0000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000", Math.floor(0.8 * 10**6), 18);
+		await ico.setPaymentToken("MATIC", ico.address, "0x0000000000000000000000000000000000000000", Math.floor(0.8 * 10**6), 18);
 		expect(await ico.getPaymentSymbols()).to.deep.equal([ 'COIN', 'DOGE', 'USDT', 'BNB', 'MATIC' ]);
 
 		// delete multiple payment tokens

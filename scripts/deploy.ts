@@ -62,7 +62,7 @@ async function main() {
 		console.log("WBTC 0x20caa5fa15c4177cd6946b8041ef40447db27539 balance: " + await wbtc.balanceOf('0x20caa5fa15c4177cd6946b8041ef40447db27539'));
 
 		// deploy ETH
-		await ico.setPaymentToken("COIN", ZERO_ADDRESS, ZERO_ADDRESS, Math.floor(DEF_PRICE_ETH_IN_USD * 10**6), 18);
+		await ico.setPaymentToken("COIN", ico.address, ZERO_ADDRESS, Math.floor(DEF_PRICE_ETH_IN_USD * 10**6), 18);
 		console.log("COIN installed");
 
 		// deploy MATIC
@@ -121,7 +121,7 @@ async function main() {
 		console.log("WBTC 0x20caa5fa15c4177cd6946b8041ef40447db27539 balance: " + await wbtc.balanceOf('0x20caa5fa15c4177cd6946b8041ef40447db27539'));
 
 		// deploy ETH
-		await ico.setPaymentToken("COIN", ZERO_ADDRESS, "0x694AA1769357215DE4FAC081bf1f309aDC325306", Math.floor(DEF_PRICE_ETH_IN_USD * 10**6), 18);
+		await ico.setPaymentToken("COIN", ico.address, "0x694AA1769357215DE4FAC081bf1f309aDC325306", Math.floor(DEF_PRICE_ETH_IN_USD * 10**6), 18);
 		console.log("COIN installed");
 
 		// deploy MATIC
@@ -163,7 +163,7 @@ async function main() {
 		await ico.setPaymentToken("WBTC", '0x2260fac5e5542a773aa44fbcfedf7c193bc2c599', '0xF4030086522a5bEEa4988F8cA5B36dbC97BeE88c', Math.floor(DEF_PRICE_BTC_IN_USD * 10**6), 18);				
 
 		// deploy ETH
-		await ico.setPaymentToken("COIN", ZERO_ADDRESS, "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", Math.floor(DEF_PRICE_ETH_IN_USD * 10**6), 18);
+		await ico.setPaymentToken("COIN", ico.address, "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", Math.floor(DEF_PRICE_ETH_IN_USD * 10**6), 18);
 
 		// deploy MATIC
 		await ico.setPaymentToken("MATIC", '0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa', "0x7bAC85A8a13A4BcD8abb3eB7d6b4d632c5a57676", Math.floor(DEF_PRICE_MATIC_IN_USD * 10**6), 18);
@@ -205,7 +205,7 @@ async function main() {
 
 		// deploy MATIC
 		// https://faucet.polygon.technology/
-		await ico.setPaymentToken("COIN", ZERO_ADDRESS, "0xd0D5e3DB44DE05E9F294BB0a3bEEaF030DE24Ada", Math.floor(DEF_PRICE_MATIC_IN_USD * 10**6), 18);
+		await ico.setPaymentToken("COIN", ico.address, "0xd0D5e3DB44DE05E9F294BB0a3bEEaF030DE24Ada", Math.floor(DEF_PRICE_MATIC_IN_USD * 10**6), 18);
 		console.log("COIN installed");
 
 		// deploy BNB
@@ -244,7 +244,7 @@ async function main() {
 
 		// deploy MATIC
 		await sleep(10000);
-		await ico.setPaymentToken("COIN", ZERO_ADDRESS, "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0", Math.floor(DEF_PRICE_MATIC_IN_USD * 10**6), 18);
+		await ico.setPaymentToken("COIN", ico.address, "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0", Math.floor(DEF_PRICE_MATIC_IN_USD * 10**6), 18);
 		console.log("COIN installed");
 
 		// deploy BNB
@@ -260,7 +260,6 @@ async function main() {
 		console.log("USDT installed");
 
 	}
-
 
 	// **********************************************************************************************************************************
 	// ********************************************** Configure ChainLink Tokens - BSC **************************************************
