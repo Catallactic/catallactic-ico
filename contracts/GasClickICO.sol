@@ -369,8 +369,7 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 	/*************************************************** Withdraw *******************************************/
 	/********************************************************************************************************/
 	function withdraw(string calldata symbol, uint8 percentage) external nonReentrant onlyOwner {
-		require(stage == CrowdsaleStage.Finished, "ERRW_MUST_FIN");																																										// ICO must be finished
-		require(totaluUSDTInvested > softCapuUSD, "ERRW_NPAS_SOF");																																									// Not passed SoftCap
+		require(totaluUSDTInvested > softCapuUSD, "ERRW_NPAS_SOF");																																										// Not passed SoftCap
 		require(targetWalletAddress != address(0x0), "ERRW_MISS_WAL");																																								// Provide Wallet
 
 		paymentTokens[symbol].ptuUSDInvested -= paymentTokens[symbol].ptuUSDInvested * percentage / 100;
