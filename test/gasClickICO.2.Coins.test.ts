@@ -8,6 +8,7 @@ describe("gasClickICO.2.Coins.test", function () {
 
 	let GasClickICO, ico: Contract;
 	let DemoToken, token: Contract;
+	let ChainLinkAggregator, chainLinkAggregator: Contract;
 	let owner: SignerWithAddress, project: SignerWithAddress, liquidity: SignerWithAddress;
 	let addr1: SignerWithAddress, addr2: SignerWithAddress, addr3: SignerWithAddress, addrs;
 
@@ -46,10 +47,15 @@ describe("gasClickICO.2.Coins.test", function () {
 		//console.log('--------------------');
 		await hre.network.provider.send("hardhat_reset");
 
+		ChainLinkAggregator = await ethers.getContractFactory("DemoMockAggregator", owner);
+		chainLinkAggregator = await ChainLinkAggregator.deploy();
+		await chainLinkAggregator.deployed();
+		console.log("ChainLinkAggregator:" + chainLinkAggregator.address);
+
 		GasClickICO = await ethers.getContractFactory("GasClickICO");
 		ico = await GasClickICO.deploy();
 		await ico.deployed();
-		await ico.setPaymentToken("COIN", ico.address, "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", Math.floor(1100*1e6), 18);
+		await ico.setPaymentToken("COIN", ico.address, chainLinkAggregator.address, Math.floor(1100*1e6), 18);
 		console.log("deployed ICO:" + ico.address);
 
 		DemoToken = await ethers.getContractFactory("DemoToken");
@@ -165,7 +171,7 @@ describe("gasClickICO.2.Coins.test", function () {
 
 		await expect(testTransferCoin(addr1, 10)).not.to.be.reverted;
 		expect((await ico.getPaymentToken("COIN"))[4]).to.equal(1 * 9999999, 'Invested amount must be accounted');																	// uUSDInvested
-		expect((await ico.getPaymentToken("COIN"))[5]).to.equal(BigInt(1 * 9090909090909090), 'Invested amount must be accounted');								// amountInvested			
+		expect((await ico.getPaymentToken("COIN"))[5]).to.equal(BigInt(1 * 9090909090909090), 'Invested amount must be accounted');									// amountInvested			
 
 		await expect(testTransferCoin(addr2, 10)).not.to.be.reverted;
 		expect((await ico.getPaymentToken("COIN"))[4]).to.equal(2 * 9999999, 'Invested amount must be accounted');																	// uUSDInvested
@@ -174,6 +180,34 @@ describe("gasClickICO.2.Coins.test", function () {
 		await expect(testTransferCoin(addr3, 10)).not.to.be.reverted;
 		expect((await ico.getPaymentToken("COIN"))[4]).to.equal(3 * 9999999, 'Invested amount must be accounted');																	// uUSDInvested
 		expect((await ico.getPaymentToken("COIN"))[5]).to.equal(BigInt((3 * 9090909090909090).toString()), 'Invested amount must be accounted');		// amountInvested
+	});
+
+	it("Should allow dynamic prices", async() => {
+
+		await ico.setCrowdsaleStage(1);
+
+		// use default price
+		await expect(testTransferCoin(addr1, 10)).not.to.be.reverted;
+		expect((await ico.getPaymentToken("COIN"))[4]).to.equal(1 * 9999999, 'Invested amount must be accounted');																	// uUSDInvested
+
+		// use dynamic price - same price
+		await ico.setDynamicPrice(true);
+		await chainLinkAggregator.setDynamicPrice(Math.floor(1100));
+		await expect(testTransferCoin(addr1, 10)).not.to.be.reverted;
+		expect((await ico.getPaymentToken("COIN"))[4]).to.equal(2 * 9999999, 'Invested amount must be accounted');																	// uUSDInvested
+
+		// use dynamic price - double price
+		await ico.setDynamicPrice(true);
+		await chainLinkAggregator.setDynamicPrice(Math.floor(2200));
+		await expect(testTransferCoin(addr1, 10)).not.to.be.reverted;
+		expect((await ico.getPaymentToken("COIN"))[4]).to.equal(4 * 9999999 + 1, 'Invested amount must be accounted');															// uUSDInvested
+
+		// use dynamic price - double price
+		await ico.setDynamicPrice(true);
+		await chainLinkAggregator.setDynamicPrice(0);
+		await expect(testTransferCoin(addr1, 10)).not.to.be.reverted;
+		expect((await ico.getPaymentToken("COIN"))[4]).to.equal(6 * 9999999 + 2, 'Invested amount must be accounted');															// uUSDInvested
+
 	});
 
 	/********************************************************************************************************/

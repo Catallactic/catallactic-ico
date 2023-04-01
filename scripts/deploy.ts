@@ -37,12 +37,18 @@ async function main() {
 	const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 	// **********************************************************************************************************************************
-	// ******************************************** Configure ChainLink Tokens - Localhost **********************************************
+	// ***************************************************** Configure Localhost Tokens *************************************************
 	// **********************************************************************************************************************************
 	// https://docs.chain.link/data-feeds/price-feeds/addresses?network=polygon
 
 	if (hre.network.name == 'localhost') {
 		console.log("deploying to localhost");
+
+		// ChainLinkAggregator Token
+		const ChainLinkAggregator = await ethers.getContractFactory("DemoMockAggregator", owner);
+		const chainLinkAggregator = await ChainLinkAggregator.deploy();
+		await chainLinkAggregator.deployed();
+		console.log("ChainLinkAggregator:" + chainLinkAggregator.address);
 
 		// deploy Token
 		const Token = await ethers.getContractFactory("DemoToken");
@@ -98,10 +104,16 @@ async function main() {
 	}
 
 	// **********************************************************************************************************************************
-	// ******************************************** Configure ChainLink Tokens - Ethereum ***********************************************
+	// *************************************************** Configure Ethereum Tokens ****************************************************
 	// **********************************************************************************************************************************
 	if (hre.network.name == 'sepolia') {
 		console.log("deploying to sepolia");
+
+		// ChainLinkAggregator Token
+		const ChainLinkAggregator = await ethers.getContractFactory("DemoMockAggregator", owner);
+		const chainLinkAggregator = await ChainLinkAggregator.deploy();
+		await chainLinkAggregator.deployed();
+		console.log("ChainLinkAggregator:" + chainLinkAggregator.address);
 
 		// deploy Token
 		const Token = await ethers.getContractFactory("DemoToken");
@@ -178,10 +190,16 @@ async function main() {
 	}
 
 	// **********************************************************************************************************************************
-	// ******************************************** Configure ChainLink Tokens - Polygon ************************************************
+	// *************************************************** Configure Polygon Tokens *****************************************************
 	// **********************************************************************************************************************************
 	if (hre.network.name == 'polygon_mumbai') {
 		console.log("deploying to polygon_mumbai");
+
+		// ChainLinkAggregator Token
+		const ChainLinkAggregator = await ethers.getContractFactory("DemoMockAggregator", owner);
+		const chainLinkAggregator = await ChainLinkAggregator.deploy();
+		await chainLinkAggregator.deployed();
+		console.log("ChainLinkAggregator:" + chainLinkAggregator.address);
 
 		// deploy Token
 		const Token = await ethers.getContractFactory("DemoToken");
@@ -262,7 +280,7 @@ async function main() {
 	}
 
 	// **********************************************************************************************************************************
-	// ********************************************** Configure ChainLink Tokens - BSC **************************************************
+	// ***************************************************** Configure BSC Tokens *******************************************************
 	// **********************************************************************************************************************************
 	if (hre.network.name == 'bsc') {
 
@@ -280,6 +298,12 @@ async function main() {
 	}
 
 	if (hre.network.name == 'bsc_testnet') {
+
+		// ChainLinkAggregator Token
+		const ChainLinkAggregator = await ethers.getContractFactory("DemoMockAggregator", owner);
+		const chainLinkAggregator = await ChainLinkAggregator.deploy();
+		await chainLinkAggregator.deployed();
+		console.log("ChainLinkAggregator:" + chainLinkAggregator.address);
 
 		// deploy Token
 		const Token = await ethers.getContractFactory("DemoToken");
@@ -302,7 +326,7 @@ async function main() {
 	}
 
 	// **********************************************************************************************************************************
-	// ******************************************* Configure ChainLink Tokens - Optimism ************************************************
+	// ************************************************ Configure Optimism Tokens *******************************************************
 	// **********************************************************************************************************************************
 	if (hre.network.name == 'optimism') {
 
@@ -320,6 +344,12 @@ async function main() {
 	}
 
 	if (hre.network.name == 'optimism_goerly') {
+
+		// ChainLinkAggregator Token
+		const ChainLinkAggregator = await ethers.getContractFactory("DemoMockAggregator", owner);
+		const chainLinkAggregator = await ChainLinkAggregator.deploy();
+		await chainLinkAggregator.deployed();
+		console.log("ChainLinkAggregator:" + chainLinkAggregator.address);
 
 		// deploy Token
 		const Token = await ethers.getContractFactory("DemoToken");

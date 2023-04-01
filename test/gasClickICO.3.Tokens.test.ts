@@ -9,6 +9,7 @@ describe("gasClickICO.3.Tokens.test", function () {
 	let GasClickICO, ico: Contract;
 	let DemoToken, token: Contract;
 	let FOO, foo: Contract;
+	let ChainLinkAggregator, chainLinkAggregator: Contract;
 	let owner: SignerWithAddress, project: SignerWithAddress, liquidity: SignerWithAddress;
 	let addr1: SignerWithAddress, addr2: SignerWithAddress, addr3: SignerWithAddress, addrs;
 
@@ -58,10 +59,15 @@ describe("gasClickICO.3.Tokens.test", function () {
 		//console.log('--------------------');
 		await hre.network.provider.send("hardhat_reset");
 
+		ChainLinkAggregator = await ethers.getContractFactory("DemoMockAggregator", owner);
+		chainLinkAggregator = await ChainLinkAggregator.deploy();
+		await chainLinkAggregator.deployed();
+		console.log("ChainLinkAggregator:" + chainLinkAggregator.address);
+
 		GasClickICO = await ethers.getContractFactory("GasClickICO");
 		ico = await GasClickICO.deploy();
 		await ico.deployed();
-		await ico.setPaymentToken("COIN", ico.address, "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419", Math.floor(1100*1e6), 18);
+		await ico.setPaymentToken("FOO", ico.address, chainLinkAggregator.address, Math.floor(1100*1e6), 18);
 		console.log("deployed ICO:" + ico.address);
 
 		DemoToken = await ethers.getContractFactory("DemoToken");
@@ -241,7 +247,7 @@ describe("gasClickICO.3.Tokens.test", function () {
 		await ico.setCrowdsaleStage(1);
 
 		// prepare test users
-		await ico.setPaymentToken("FOO", foo.address, foo.address, Math.floor(258.1*1e6), 18);
+		await ico.setPaymentToken("FOO", foo.address, chainLinkAggregator.address, Math.floor(258.1*1e6), 18);
 		let amountToTransfer = ethers.utils.parseUnits("1000000", 18).toString();
 		await foo.transfer(addr1.address, amountToTransfer);
 		await foo.transfer(addr2.address, amountToTransfer);
@@ -260,6 +266,45 @@ describe("gasClickICO.3.Tokens.test", function () {
 		//expect((await ico.getPaymentToken("FOO"))[5]).to.equal(BigInt((3 * 38744672607516470).toString()), 'Invested amount must be accounted');	// amountInvested
 	});
 
+	it("Should allow dynamic prices", async() => {
+
+		await ico.setCrowdsaleStage(1);
+
+		// prepare test users
+		await ico.setPaymentToken("FOO", foo.address, chainLinkAggregator.address, Math.floor(4*1e6), 18);
+		let amountToTransfer = ethers.utils.parseUnits("1000000", 18).toString();
+		await foo.transfer(addr1.address, amountToTransfer);
+		await foo.transfer(addr2.address, amountToTransfer);
+		await foo.transfer(addr3.address, amountToTransfer);
+
+		// use default price
+		await expect(testTransferToken(addr1, 'FOO', 10)).not.to.be.reverted;
+		expect((await ico.getPaymentToken("FOO"))[4]).to.equal(10 * 10**6, 'Invested amount must be accounted');																		// uUSDInvested
+		expect((await ico.getPaymentToken("FOO"))[5]).to.equal(BigInt((2.5 * 10**18).toString()), 'Invested amount must be accounted');							// amountInvested
+
+		// use dynamic price - same price
+		await ico.setDynamicPrice(true);
+		await chainLinkAggregator.setDynamicPrice(4);
+		await expect(testTransferToken(addr1, 'FOO', 10)).not.to.be.reverted;
+		expect((await ico.getPaymentToken("FOO"))[4]).to.equal(2 * 10 * 10**6, 'Invested amount must be accounted');																// uUSDInvested
+		expect((await ico.getPaymentToken("FOO"))[5]).to.equal(BigInt((2 * 2.5 * 10**18).toString()), 'Invested amount must be accounted');					// amountInvested
+
+		// use dynamic price - double price
+		await ico.setDynamicPrice(true);
+		await chainLinkAggregator.setDynamicPrice(8);
+		await expect(testTransferToken(addr1, 'FOO', 10)).not.to.be.reverted;
+		expect((await ico.getPaymentToken("FOO"))[4]).to.equal(4 * 10 * 10**6, 'Invested amount must be accounted');																// uUSDInvested
+		expect((await ico.getPaymentToken("FOO"))[5]).to.equal(BigInt((3 * 2.5 * 10**18).toString()), 'Invested amount must be accounted');					// amountInvested
+
+		// use dynamic price - double price
+		await ico.setDynamicPrice(true);
+		await chainLinkAggregator.setDynamicPrice(0);
+		await expect(testTransferToken(addr1, 'FOO', 10)).not.to.be.reverted;
+		expect((await ico.getPaymentToken("FOO"))[4]).to.equal(5 * 10 * 10**6, 'Invested amount must be accounted');																	// uUSDInvested
+		expect((await ico.getPaymentToken("FOO"))[5]).to.equal(BigInt((8.75 * 10**18).toString()), 'Invested amount must be accounted');		// amountInvested
+
+	});
+
 	/********************************************************************************************************/
 	/********************************************** Investors ***********************************************/
 	/********************************************************************************************************/
@@ -268,7 +313,7 @@ describe("gasClickICO.3.Tokens.test", function () {
 		await ico.setCrowdsaleStage(1);
 
 		// prepare test users
-		await ico.setPaymentToken("FOO", foo.address, foo.address, Math.floor(258.1*1e6), 18);
+		await ico.setPaymentToken("FOO", foo.address, chainLinkAggregator.address, Math.floor(258.1*1e6), 18);
 		let amountToTransfer = ethers.utils.parseUnits("1000000", 18).toString();
 		await foo.transfer(addr1.address, amountToTransfer);
 		await foo.transfer(addr2.address, amountToTransfer);
@@ -301,7 +346,7 @@ describe("gasClickICO.3.Tokens.test", function () {
 		await ico.setCrowdsaleStage(0);
 
 		// prepare test users
-		await ico.setPaymentToken("FOO", foo.address, foo.address, Math.floor(258.1*1e6), 18);
+		await ico.setPaymentToken("FOO", foo.address, chainLinkAggregator.address, Math.floor(258.1*1e6), 18);
 		let amountToTransfer = ethers.utils.parseUnits("1000000", 18).toString();
 		await foo.transfer(addr1.address, amountToTransfer);
 		await foo.transfer(addr2.address, amountToTransfer);
@@ -326,7 +371,7 @@ describe("gasClickICO.3.Tokens.test", function () {
 		await ico.setCrowdsaleStage(1);
 
 		// prepare test users
-		await ico.setPaymentToken("FOO", foo.address, foo.address, Math.floor(258.1*1e6), 18);
+		await ico.setPaymentToken("FOO", foo.address, chainLinkAggregator.address, Math.floor(258.1*1e6), 18);
 		let amountToTransfer = ethers.utils.parseUnits("1000000", 18).toString();
 		await foo.transfer(addr1.address, amountToTransfer);
 		await foo.transfer(addr2.address, amountToTransfer);
@@ -344,7 +389,7 @@ describe("gasClickICO.3.Tokens.test", function () {
 		await ico.setCrowdsaleStage(1);
 
 		// prepare test users
-		await ico.setPaymentToken("FOO", foo.address, foo.address, Math.floor(258.1*1e6), 18);
+		await ico.setPaymentToken("FOO", foo.address, chainLinkAggregator.address, Math.floor(258.1*1e6), 18);
 		let amountToTransfer = ethers.utils.parseUnits("1000000", 18).toString();
 		await foo.transfer(addr1.address, amountToTransfer);
 		await foo.transfer(addr2.address, amountToTransfer);
@@ -370,7 +415,7 @@ describe("gasClickICO.3.Tokens.test", function () {
 		await ico.setCrowdsaleStage(1);
 
 		// prepare test users
-		await ico.setPaymentToken("FOO", foo.address, foo.address, Math.floor(258.1*1e6), 18);
+		await ico.setPaymentToken("FOO", foo.address, chainLinkAggregator.address, Math.floor(258.1*1e6), 18);
 		let amountToTransfer = ethers.utils.parseUnits("1000000", 18).toString();
 		await foo.transfer(addr1.address, amountToTransfer);
 		await foo.transfer(addr2.address, amountToTransfer);
@@ -400,7 +445,7 @@ describe("gasClickICO.3.Tokens.test", function () {
 		await ico.setCrowdsaleStage(1);
 
 		// prepare test users
-		await ico.setPaymentToken("FOO", foo.address, foo.address, Math.floor(258.1*1e6), 18);
+		await ico.setPaymentToken("FOO", foo.address, chainLinkAggregator.address, Math.floor(258.1*1e6), 18);
 		let amountToTransfer = ethers.utils.parseUnits("1000000", 18).toString();
 		await foo.transfer(addr1.address, amountToTransfer);
 		await foo.transfer(addr2.address, amountToTransfer);
@@ -422,7 +467,7 @@ describe("gasClickICO.3.Tokens.test", function () {
 		await ico.setCrowdsaleStage(1);
 
 		// prepare test users
-		await ico.setPaymentToken("FOO", foo.address, foo.address, Math.floor(258.1*1e6), 18);
+		await ico.setPaymentToken("FOO", foo.address, chainLinkAggregator.address, Math.floor(258.1*1e6), 18);
 		let amountToTransfer = ethers.utils.parseUnits("1000000", 18).toString();
 		await foo.transfer(addr1.address, amountToTransfer);
 		await foo.transfer(addr2.address, amountToTransfer);
@@ -448,7 +493,7 @@ describe("gasClickICO.3.Tokens.test", function () {
 		await ico.setCrowdsaleStage(1);
 
 		// prepare test users
-		await ico.setPaymentToken("FOO", foo.address, foo.address, Math.floor(258.1*1e6), 18);
+		await ico.setPaymentToken("FOO", foo.address, chainLinkAggregator.address, Math.floor(258.1*1e6), 18);
 		let amountToTransfer = ethers.utils.parseUnits("1000000", 18).toString();
 		await foo.transfer(addr1.address, amountToTransfer);
 		await foo.transfer(addr2.address, amountToTransfer);
@@ -471,7 +516,7 @@ describe("gasClickICO.3.Tokens.test", function () {
 		await ico.setCrowdsaleStage(1);
 
 		// prepare test users
-		await ico.setPaymentToken("FOO", foo.address, foo.address, Math.floor(258.1*1e6), 18);
+		await ico.setPaymentToken("FOO", foo.address, chainLinkAggregator.address, Math.floor(258.1*1e6), 18);
 		let amountToTransfer = ethers.utils.parseUnits("1000000", 18).toString();
 		await foo.transfer(addr1.address, amountToTransfer);
 		await foo.transfer(addr2.address, amountToTransfer);
@@ -512,7 +557,7 @@ describe("gasClickICO.3.Tokens.test", function () {
 		await ico.setCrowdsaleStage(1);
 
 		// prepare test users
-		await ico.setPaymentToken("FOO", foo.address, foo.address, Math.floor(258.1*1e6), 18);
+		await ico.setPaymentToken("FOO", foo.address, chainLinkAggregator.address, Math.floor(258.1*1e6), 18);
 		let amountToTransfer = ethers.utils.parseUnits("1000000", 18).toString();
 		await foo.transfer(addr1.address, amountToTransfer);
 		await foo.transfer(addr2.address, amountToTransfer);
@@ -555,7 +600,7 @@ describe("gasClickICO.3.Tokens.test", function () {
 		await ico.setWhitelistuUSDThreshold(20_000_000 * 10**6);
 
 		// prepare test users
-		await ico.setPaymentToken("FOO", foo.address, foo.address, Math.floor(258.1*1e6), 18);
+		await ico.setPaymentToken("FOO", foo.address, chainLinkAggregator.address, Math.floor(258.1*1e6), 18);
 		let amountToTransfer = ethers.utils.parseUnits("1000000", 18).toString();
 		await foo.transfer(addr1.address, amountToTransfer);
 		await foo.transfer(addr2.address, amountToTransfer);
@@ -614,7 +659,7 @@ describe("gasClickICO.3.Tokens.test", function () {
 		await ico.setWhitelistuUSDThreshold(20_000_000 * 10**6);
 
 		// prepare test users
-		await ico.setPaymentToken("FOO", foo.address, foo.address, Math.floor(258.1*1e6), 18);
+		await ico.setPaymentToken("FOO", foo.address, chainLinkAggregator.address, Math.floor(258.1*1e6), 18);
 		let amountToTransfer = ethers.utils.parseUnits("1000000", 18).toString();
 		await foo.transfer(addr1.address, amountToTransfer);
 		await foo.transfer(addr2.address, amountToTransfer);
@@ -671,7 +716,7 @@ describe("gasClickICO.3.Tokens.test", function () {
 		await ico.setCrowdsaleStage(1);
 
 		// prepare test users
-		await ico.setPaymentToken("FOO", foo.address, foo.address, Math.floor(258.1*1e6), 18);
+		await ico.setPaymentToken("FOO", foo.address, chainLinkAggregator.address, Math.floor(258.1*1e6), 18);
 		let amountToTransfer = ethers.utils.parseUnits("1000000", 18).toString();
 		await foo.transfer(addr1.address, amountToTransfer);
 		await foo.transfer(addr2.address, amountToTransfer);
