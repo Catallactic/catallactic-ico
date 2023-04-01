@@ -188,6 +188,7 @@ describe("gasClickICO.1.Common.test", function () {
 		await expect(ico.setMaxuUSDTransfer(100000)).not.to.be.reverted;
 
 		// prevent intruders
+		await expect(await ico.pendingOwner()).to.equal(addr1.address);
 		await expect(ico.connect(addr2).acceptOwnership()).to.be.revertedWith('Ownable2Step: caller is not the new owner');
 
 		// second transfer ownership step - accept ownership
