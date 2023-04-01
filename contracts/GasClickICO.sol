@@ -226,23 +226,27 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 	}
 
 	function depositWithuUSD(string memory symbol, uint256 rawAmountWitDecimals) internal {
-		if(!dynamicPrice || paymentTokens[symbol].ptPriceFeed == address(0)) {
-			deposit(symbol, rawAmountWitDecimals, rawAmountWitDecimals * paymentTokens[symbol].ptUUSD_PER_TOKEN / 10**paymentTokens[symbol].ptDecimals);
-		} else {
+		// update price. Consider chainlink returning zero or negative
+		// stale case is ignored because investor is prompted a price in the UI, the difference can be minimal, and check would need using block.timestamp and higher gas consumption
+		if(dynamicPrice && paymentTokens[symbol].ptPriceFeed != address(0)) {
 			AggregatorV3Interface currencyToUsdPriceFeed = AggregatorV3Interface(paymentTokens[symbol].ptPriceFeed);
-			(,int256 rawUsdPrice,,,) = currencyToUsdPriceFeed.latestRoundData();
-			paymentTokens[symbol].ptUUSD_PER_TOKEN = uint256(rawUsdPrice) * 10**6 / 10**currencyToUsdPriceFeed.decimals();
-			deposit(symbol, rawAmountWitDecimals, rawAmountWitDecimals * paymentTokens[symbol].ptUUSD_PER_TOKEN / 10**paymentTokens[symbol].ptDecimals);
+			(,int rawUsdPrice,,,) = currencyToUsdPriceFeed.latestRoundData();
+			if(rawUsdPrice >= 0) {
+				paymentTokens[symbol].ptUUSD_PER_TOKEN = uint256(rawUsdPrice) * 10**6 / 10**currencyToUsdPriceFeed.decimals();
+			}
 		}
+		
+		// calculate uUSDAmount
+		deposit(symbol, rawAmountWitDecimals, rawAmountWitDecimals * paymentTokens[symbol].ptUUSD_PER_TOKEN / 10**paymentTokens[symbol].ptDecimals);
 	}
 
 	// receive contribution
 	function deposit(string memory symbol, uint256 rawAmountWitDecimals, uint uUSDAmount) internal {
-		require(stage == CrowdsaleStage.Ongoing, "ERRD_MUST_ONG");																																										// ICO must be ongoing
+		require(stage == CrowdsaleStage.Ongoing, "ERRD_MUST_ONG");																																									// ICO must be ongoing
 		require(!useBlacklist || !blacklisted[msg.sender], 'ERRD_MUSN_BLK');																																				// must not be blacklisted
-		require(uUSDAmount >= minuUSDTransfer, "ERRD_TRAS_LOW");																																											// transfer amount too low
-		require(uUSDAmount <= maxuUSDTransfer, "ERRD_TRAS_HIG");																																											// transfer amount too high
-		require((contributions[msg.sender].uUSDToPay +uUSDAmount < whitelistuUSDThreshold) || whitelisted[msg.sender], 'ERRD_MUST_WHI');					// must be whitelisted
+		require(uUSDAmount >= minuUSDTransfer, "ERRD_TRAS_LOW");																																										// transfer amount too low
+		require(uUSDAmount <= maxuUSDTransfer, "ERRD_TRAS_HIG");																																										// transfer amount too high
+		require((contributions[msg.sender].uUSDToPay +uUSDAmount < whitelistuUSDThreshold) || whitelisted[msg.sender], 'ERRD_MUST_WHI');						// must be whitelisted
 		require(contributions[msg.sender].uUSDToPay +uUSDAmount <= maxuUSDInvestment, "ERRD_INVT_HIG");																							// total invested amount too high
 		require(uUSDAmount + totaluUSDTInvested < hardCapuUSD, "ERRD_HARD_CAP");																																		// amount higher than available
 
