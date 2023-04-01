@@ -341,6 +341,31 @@ describe("gasClickICO.3.Tokens.test", function () {
 	/************************************************ Deposit ***********************************************/
 	/********************************************************************************************************/
 	// normal
+	it("Should be able to deposit", async() => {
+		await ico.setCrowdsaleStage(1);
+
+		// prepare test users
+		await ico.setPaymentToken("FOO", foo.address, chainLinkAggregator.address, Math.floor(4*1e6), 18);
+		let amountToTransfer = ethers.utils.parseUnits("1000000", 18).toString();
+		await foo.transfer(addr1.address, amountToTransfer);
+		await foo.transfer(addr2.address, amountToTransfer);
+		await foo.transfer(addr3.address, amountToTransfer);
+
+		// update balances
+		await expect(() => testTransferToken(addr1, 'FOO', 10))
+			.to.changeTokenBalances(foo, [ico, addr1], [BigInt((await usdToTokenWithDecimals(10)).toString()), BigInt((-1*(await usdToTokenWithDecimals(10))).toString())]);
+
+		// update counters
+		expect(await ico.getContribution(addr1.address, 'FOO')).to.equal(BigInt(await usdToTokenWithDecimals(10)));																						// cAmountInvested
+		expect(await ico.getuUSDContribution(addr1.address, 'FOO')).to.equal(10 * 10**6);																																			// cuUSDInvested
+		expect(await ico.getuUSDToClaim(addr1.address)).to.equal(10 * 10**6, 'Investor USD contributed is wrong');																						// uUSDToPay
+		expect((await ico.getPaymentToken("FOO"))[4]).to.equal(10 * 10**6, 'Invested amount must be accounted');																							// uUSDInvested
+		expect((await ico.getPaymentToken("FOO"))[5]).to.equal(BigInt((await usdToTokenWithDecimals(10)).toString()), 'Investor USD contributed is wrong');		// amountInvested
+		expect(await ico.getTotaluUSDInvested()).to.equal(10 * 10**6);																																												// totaluUSDTInvested
+		
+	});
+
+	// normal
 	it("Should be able to deposit only if Ongoing", async() => {
 
 		await ico.setCrowdsaleStage(0);

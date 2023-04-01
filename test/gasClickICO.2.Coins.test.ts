@@ -240,6 +240,23 @@ describe("gasClickICO.2.Coins.test", function () {
 	/************************************************ Deposit ***********************************************/
 	/********************************************************************************************************/
 	// normal
+	it("Should be able to deposit", async() => {
+		await ico.setCrowdsaleStage(1);
+
+		// update balances
+		await expect(await testTransferCoin(addr1, 10))
+			.to.changeEtherBalances([ico, addr1], [usdToWei(10), usdToWei(-10)]);
+
+		// update counters
+		expect(await ico.getContribution(addr1.address, 'COIN')).to.equal(BigInt(9090909090909090));																						// cAmountInvested
+		expect(await ico.getuUSDContribution(addr1.address, 'COIN')).to.equal(9999999);																													// cuUSDInvested
+		expect(await ico.getuUSDToClaim(addr1.address)).to.equal(9999999, 'Investor USD contributed is wrong');																	// uUSDToPay
+		expect((await ico.getPaymentToken("COIN"))[4]).to.equal(9999999, 'Invested amount must be accounted');																	// uUSDInvested
+		expect((await ico.getPaymentToken("COIN"))[5]).to.equal(BigInt((9090909090909090).toString()), 'Investor USD contributed is wrong');		// amountInvested
+		expect(await ico.getTotaluUSDInvested()).to.equal(9999999);																																							// totaluUSDTInvested
+		
+	});
+
 	it("Should be able to deposit only if Ongoing", async() => {
 		await ico.setCrowdsaleStage(1);
 		await expect(await testTransferCoin(addr1, 10))
