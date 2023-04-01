@@ -22,15 +22,15 @@ import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 
 contract DemoMockAggregator is AggregatorV3Interface {
 
-    uint80 public roundId;
+    uint80 public roundId = 0;
 
     int256 public price;
 
-    uint256 public startedAt;
+    uint256 public startedAt = 0;
 
-    uint256 public updatedAt;
+    uint256 public updatedAt = 0;
 
-    uint80 public answeredInRound;
+    uint80 public answeredInRound = 0;
 
     function getRoundData(uint80 roundId__) external view returns (uint80 roundId_, int256 answer, uint256 startedAt_, uint256 updatedAt_, uint80 answeredInRound_) {
       return (roundId__, price, startedAt_, updatedAt_, answeredInRound_);
