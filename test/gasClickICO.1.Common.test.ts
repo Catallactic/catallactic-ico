@@ -175,6 +175,27 @@ describe("gasClickICO.1.Common.test", function () {
 		await expect(ico.connect(addr1).claimAddress(addr1.address)).to.be.revertedWith('Ownable: caller is not the owner');
 		await expect(ico.connect(addr1).withdraw('USDT', 100)).to.be.revertedWith('Ownable: caller is not the owner');
 	});
+
+	it("Should be able to transfer ownership", async() => {
+
+		// before transfer ownership
+		await expect(ico.connect(addr1).setMaxuUSDTransfer(100000)).to.be.revertedWith('Ownable: caller is not the owner');
+		await expect(ico.setMaxuUSDTransfer(100000)).not.to.be.reverted;
+
+		// first transfer ownership step - not taking effect
+		await expect(ico.transferOwnership(addr1.address)).not.to.be.reverted;
+		await expect(ico.connect(addr1).setMaxuUSDTransfer(100000)).to.be.revertedWith('Ownable: caller is not the owner');
+		await expect(ico.setMaxuUSDTransfer(100000)).not.to.be.reverted;
+
+		// prevent intruders
+		await expect(ico.connect(addr2).acceptOwnership()).to.be.revertedWith('Ownable2Step: caller is not the new owner');
+
+		// second transfer ownership step - accept ownership
+		await expect(ico.connect(addr1).acceptOwnership()).not.to.be.reverted;
+		await expect(ico.setMaxuUSDTransfer(100000)).to.be.revertedWith('Ownable: caller is not the owner');
+		await expect(ico.connect(addr1).setMaxuUSDTransfer(100000)).not.to.be.reverted;
+
+	});
 	
 	/********************************************************************************************************/
 	/************************************************* Lifecycle ********************************************/

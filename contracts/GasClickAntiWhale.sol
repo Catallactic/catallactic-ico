@@ -20,9 +20,9 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity 0.8.18;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
-contract GasClickAntiWhale is Ownable {
+contract GasClickAntiWhale is Ownable2Step {
 
 	/********************************************************************************************************/
 	/********************************************** WhiteLists **********************************************/
