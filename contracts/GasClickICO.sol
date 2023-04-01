@@ -305,15 +305,13 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		emit FundsRefunded(investor, symbol, rawAmount);
 
 		// do refund
-		if (rawAmount > 0) {
-			if (keccak256(bytes(symbol)) == keccak256(bytes("COIN"))) {
-				//slither-disable-next-line low-level-calls
-				(bool success, ) = payable(investor).call{ value: rawAmount }("");
-				require(success, "ERRR_WITH_REF");																																																			// Unable to refund
+		if (keccak256(bytes(symbol)) == keccak256(bytes("COIN"))) {
+			//slither-disable-next-line low-level-calls
+			(bool success, ) = payable(investor).call{ value: rawAmount }("");
+			require(success, "ERRR_WITH_REF");																																																			// Unable to refund
 
-			} else {
-				IERC20(paymentTokens[symbol].ptTokenAddress).safeTransfer(investor, rawAmount);
-			}
+		} else {
+			IERC20(paymentTokens[symbol].ptTokenAddress).safeTransfer(investor, rawAmount);
 		}
 
 	}
@@ -335,6 +333,7 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		require(tokenAddress != address(0x0), "ERRC_MISS_TOK");																																												// Provide Token
 
 		uint claimed = contributions[investor].uUSDToPay * 10**18 / UUSDT_PER_TOKEN;
+		require(claimed > 0, "ERRR_ZERO_CLM");																																																				// Nothing to refund
 
 		// clear variables
 		uint paymentSymbolsLength = paymentSymbols.length;
@@ -344,12 +343,10 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 			contributions[investor].uUSDToPay = 0;
 		}
 
-		// do claim
-		if(claimed > 0) {
-			emit FundsClaimed(investor, claimed);
+		emit FundsClaimed(investor, claimed);
 
-			IERC20(tokenAddress).safeTransferFrom(owner(), investor, claimed);
-		}
+		// do claim
+		IERC20(tokenAddress).safeTransferFrom(owner(), investor, claimed);
 	}
 	event FundsClaimed(address backer, uint amount);
 

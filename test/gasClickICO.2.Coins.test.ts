@@ -32,6 +32,7 @@ describe("gasClickICO.2.Coins.test", function () {
 	let ERRW_MUST_FIN: string = 'ERRW_MUST_FIN' // ICO must be finished
 	let ERRW_NPAS_SOF: string = 'ERRW_NPAS_SOF' // Not passed SoftCap
 	let ERRW_INVA_ADD: string = 'ERRW_INVA_ADD' // Invalid Address
+	let ERRR_ZERO_CLM: string = 'ERRR_ZERO_CLM' // Nothing to claim
 	let ERRW_MISS_WAL: string = 'ERRW_MISS_WAL' // Provide Wallet
 	let ERRR_ZERO_WIT: string = 'ERRR_ZERO_WIT' // Nothing to withdraw
 	let ERRR_WITH_BAD: string = 'ERRR_WITH_BAD' // Unable to withdraw
