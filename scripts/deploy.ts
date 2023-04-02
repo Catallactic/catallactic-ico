@@ -231,7 +231,7 @@ async function main() {
 		const bnb = await BNB.deploy("BNB", "BNB");
 		await bnb.deployed();
 		await bnb.transfer('0x20caa5fa15c4177cd6946b8041ef40447db27539', ethers.utils.parseUnits("1000000", 18).toString());
-		await ico.setPaymentToken("BNB", bnb.address, ZERO_ADDRESS, Math.floor(DEF_PRICE_BNB_IN_USD * 10**6), 18);
+		await ico.setPaymentToken("BNB", bnb.address, chainLinkAggregator.address, Math.floor(DEF_PRICE_BNB_IN_USD * 10**6), 18);
 		console.log("BNB deployed to:", bnb.address);
 		console.log("BNB owner balance: " + await bnb.balanceOf(owner.address));
 		console.log("BNB 0x20caa5fa15c4177cd6946b8041ef40447db27539 balance: " + await bnb.balanceOf('0x20caa5fa15c4177cd6946b8041ef40447db27539'));
