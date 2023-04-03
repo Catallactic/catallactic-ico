@@ -199,6 +199,7 @@ async function main() {
 		const ChainLinkAggregator = await ethers.getContractFactory("DemoMockAggregator", owner);
 		const chainLinkAggregator = await ChainLinkAggregator.deploy();
 		await chainLinkAggregator.deployed();
+		await chainLinkAggregator.setDynamicPrice(300);
 		console.log("ChainLinkAggregator:" + chainLinkAggregator.address);
 
 		// deploy Token
