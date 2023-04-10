@@ -83,7 +83,7 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 	event UpdatedHardCap(uint256 hardCap);
 
 	/**
-	 * We need to make HardCap updateable to allow a multichain funding round. 
+	 * We need to make SoftCap updateable to allow a multichain funding round. 
 	 * We need multichain funding round to give oppportunity to both, retail investors, which invest small amounts 
 	 * and are impacted by transaction fees and VCs that are happy to invest in costly chains.
 	 * There is not a crosschain supply integrity solution in current state of arts
@@ -99,9 +99,9 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 	event UpdatedSoftCap(uint256 hardCap);
 
 	// ICO Price
-	uint256 private constant UUSDT_PER_TOKEN = 0.03*10**6;
+	uint256 private constant UUSD_PER_TOKEN = 0.03*10**6;
 	function getPriceuUSD() external pure returns (uint256) {
-		return UUSDT_PER_TOKEN;
+		return UUSD_PER_TOKEN;
 	}
 	
 	bool dynamicPrice = false;
@@ -165,6 +165,8 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		emit DeletedPaymentToken(symbol);
 	}
 	event DeletedPaymentToken(string symbol);
+
+	bytes32 constant COIN = keccak256("COIN");
 
 	// price update
 	function getUusdPerToken(string calldata symbol) external view returns (uint256) {
@@ -273,7 +275,7 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		emit FundsReceived(msg.sender, symbol, rawAmountWitDecimals);
 
 		// move tokens if tokens investment
-		if (keccak256(bytes(symbol)) != keccak256(bytes("COIN"))) {
+		if (keccak256(bytes(symbol)) != COIN) {
 			require(IERC20(paymentTokens[symbol].ptTokenAddress).allowance(msg.sender, address(this)) >= rawAmountWitDecimals, "ERRD_ALLO_LOW");				// insuffient allowance
 			IERC20(paymentTokens[symbol].ptTokenAddress).safeTransferFrom(msg.sender, address(this), rawAmountWitDecimals);
 		}
@@ -305,7 +307,7 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		emit FundsRefunded(investor, symbol, rawAmount);
 
 		// do refund
-		if (keccak256(bytes(symbol)) == keccak256(bytes("COIN"))) {
+		if (keccak256(bytes(symbol)) == COIN) {
 			//slither-disable-next-line low-level-calls
 			(bool success, ) = payable(investor).call{ value: rawAmount }("");
 			require(success, "ERRR_WITH_REF");																																																			// Unable to refund
@@ -332,15 +334,17 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		require(investor !=  address(0), "ERRW_INVA_ADD");
 		require(tokenAddress != address(0x0), "ERRC_MISS_TOK");																																												// Provide Token
 
-		uint claimed = contributions[investor].uUSDToPay * 10**18 / UUSDT_PER_TOKEN;
+		uint claimed = contributions[investor].uUSDToPay * 10**18 / UUSD_PER_TOKEN;
 		require(claimed > 0, "ERRR_ZERO_CLM");																																																				// Nothing to refund
 
 		// clear variables
+		contributions[investor].uUSDToPay = 0;
 		uint paymentSymbolsLength = paymentSymbols.length;
 		for (uint i = 0; i < paymentSymbolsLength; i++) {
-			contributions[investor].conts[paymentSymbols[i]].cAmountInvested = 0;
-			contributions[investor].conts[paymentSymbols[i]].cuUSDInvested = 0;
-			contributions[investor].uUSDToPay = 0;
+			if(contributions[investor].conts[paymentSymbols[i]].cAmountInvested != 0) {
+				contributions[investor].conts[paymentSymbols[i]].cAmountInvested = 0;
+				contributions[investor].conts[paymentSymbols[i]].cuUSDInvested = 0;
+			}
 		}
 
 		emit FundsClaimed(investor, claimed);
@@ -375,7 +379,7 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		paymentTokens[symbol].ptuUSDInvested -= paymentTokens[symbol].ptuUSDInvested * percentage / 100;
 		paymentTokens[symbol].ptAmountInvested -= paymentTokens[symbol].ptAmountInvested * percentage / 100;
 
-		if (keccak256(bytes(symbol)) == keccak256(bytes("COIN"))) {
+		if (keccak256(bytes(symbol)) == COIN) {
 			uint amount = address(this).balance;
 			require(amount > 0, "ERRR_ZERO_WIT");																																																				// Nothing to withdraw
 
