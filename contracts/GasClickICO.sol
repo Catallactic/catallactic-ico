@@ -300,9 +300,8 @@ contract GasClickICO is GasClickAntiWhale, ReentrancyGuard {
 		require(rawAmount > 0, "ERRR_ZERO_REF");																																																		// Nothing to refund
 
 		// clear variables
-		contributions[investor].conts[symbol].cAmountInvested = 0;
-		contributions[investor].conts[symbol].cuUSDInvested = 0;
-		contributions[investor].uUSDToPay = 0;
+		contributions[investor].uUSDToPay -= contributions[investor].conts[symbol].cuUSDInvested;
+		delete contributions[investor].conts[symbol];
 
 		emit FundsRefunded(investor, symbol, rawAmount);
 

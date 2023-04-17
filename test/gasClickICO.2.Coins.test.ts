@@ -392,20 +392,23 @@ describe("gasClickICO.2.Coins.test", function () {
 		let contributed1 = await ico.getContribution(addr1.address, "COIN");
 		await expect(await ico.connect(addr1).refund("COIN"))
 			.to.changeEtherBalances([ico, addr1], [contributed1.mul(-1), contributed1]);
-		contributed1 = await ico.getContribution(addr1.address, "COIN");
-		expect(contributed1).to.equal(0);
+		expect(await ico.getContribution(addr1.address, "COIN")).to.equal(0);
+		expect(await ico.getuUSDContribution(addr1.address, "COIN")).to.equal(0);
+		expect(await ico.getuUSDToClaim(addr1.address)).to.equal(0);
 
 		let contributed2 = await ico.getContribution(addr2.address, "COIN");
 		await expect(await ico.connect(addr2).refund("COIN"))
 			.to.changeEtherBalances([ico, addr2], [contributed2.mul(-1), contributed2]);
-		contributed2 = await ico.getContribution(addr2.address, "COIN");
-		expect(contributed2).to.equal(0);
+		expect(await ico.getContribution(addr2.address, "COIN")).to.equal(0);
+		expect(await ico.getuUSDContribution(addr2.address, "COIN")).to.equal(0);
+		expect(await ico.getuUSDToClaim(addr2.address)).to.equal(0);
 
 		let contributed3 = await ico.getContribution(addr3.address, "COIN");
 		await expect(await ico.connect(addr3).refund("COIN"))
 			.to.changeEtherBalances([ico, addr3], [contributed3.mul(-1), contributed3]);
-		contributed3 = await ico.getContribution(addr3.address, "COIN");
-		expect(contributed3).to.equal(0);
+		expect(await ico.getContribution(addr3.address, "COIN")).to.equal(0);
+		expect(await ico.getuUSDContribution(addr3.address, "COIN")).to.equal(0);
+		expect(await ico.getuUSDToClaim(addr3.address)).to.equal(0);
 
 		expect(await ethers.provider.getBalance(ico.address)).to.equal(0);
 		
