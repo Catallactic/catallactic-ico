@@ -70,6 +70,12 @@ async function main() {
 		// deploy ETH
 		await ico.setPaymentToken("COIN", ico.address, ZERO_ADDRESS, Math.floor(DEF_PRICE_ETH_IN_USD * 10**6), 18);
 		console.log("COIN installed");
+		await owner.sendTransaction({
+			to: '0x20caa5fa15c4177cd6946b8041ef40447db27539',
+			value: ethers.utils.parseUnits('4000', 18),
+			gasPrice: '0x5b9aca00',
+			gasLimit: '0x56f90',
+		});
 
 		// deploy MATIC
 		const MATIC = await ethers.getContractFactory("FOO");
