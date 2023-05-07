@@ -257,30 +257,30 @@ async function main() {
 
 		// deploy WBTC
 		// https://polygonscan.com/token/0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6
-		await sleep(10000);
+		await sleep(300000);
 		await ico.setPaymentToken("WBTC", '0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6', '0xDE31F8bFBD8c84b5360CFACCa3539B938dd78ae6', Math.floor(DEF_PRICE_BTC_IN_USD * 10**6), 18);
 		console.log("WBTC installed");
 
 		// deploy ETH
 		// https://polygonscan.com/token/0x7ceb23fd6bc0add59e62ac25578270cff1b9f619
-		await sleep(10000);
+		await sleep(300000);
 		await ico.setPaymentToken("WETH", '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619', "0xF9680D99D6C9589e2a93a78A04A279e509205945", Math.floor(DEF_PRICE_ETH_IN_USD * 10**6), 18);
 		console.log("WETH installed");
 
 		// deploy MATIC
-		await sleep(10000);
+		await sleep(300000);
 		await ico.setPaymentToken("COIN", ico.address, "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0", Math.floor(DEF_PRICE_MATIC_IN_USD * 10**6), 18);
 		console.log("COIN installed");
 
 		// deploy BNB
 		// https://polygonscan.com/token/0x3BA4c387f786bFEE076A58914F5Bd38d668B42c3
-		await sleep(10000);
+		await sleep(300000);
 		await ico.setPaymentToken("BNB", '0x3BA4c387f786bFEE076A58914F5Bd38d668B42c3', '0x82a6c4AF830caa6c97bb504425f6A66165C2c26e', Math.floor(DEF_PRICE_BNB_IN_USD * 10**6), 18);
 		console.log("BNB installed");
 
 		// deploy USDT
 		// https://polygonscan.com/token/0xc2132d05d31c914a87c6611c10748aeb04b58e8f
-		await sleep(10000);
+		await sleep(300000);
 		await ico.setPaymentToken("USDT", '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', '0x0A6513e40db6EB1b165753AD52E80663aeA50545', Math.floor(DEF_PRICE_USDT_IN_USD * 10**6), 18);
 		console.log("USDT installed");
 
