@@ -5,8 +5,8 @@
 // Runtime Environment's members available in the global scope.
 import { ethers } from "hardhat";
 import hre from 'hardhat'
+import axios from 'axios';
 
-const sleep = (ms:any) => new Promise(r => setTimeout(r, ms));
 
 async function main() {
 	// owner
@@ -14,12 +14,13 @@ async function main() {
 	console.log("owner:", owner.address);
 	console.log("owner balance:", await owner.getBalance());
 	const networkName = hre.network.name
-	console.log(networkName);
+	console.log("network:", networkName);
 
 	// **********************************************************************************************************************************
 	// ************************************************************* Deploy *************************************************************
 	// **********************************************************************************************************************************
 	// deploy ICO
+	console.log("ICO deploying");
 	const ICO = await ethers.getContractFactory("GasClickICO");
 	const ico = await ICO.deploy();
 	await ico.deployed();
@@ -255,33 +256,41 @@ async function main() {
 	if (hre.network.name == 'polygon') {
 		console.log("deploying to polygon");
 
+		// checks for gas because ethersjs has gas hardcoded and this gives transaction underpriced error
+		// https://github.com/ethers-io/ethers.js/issues/2828
+		// https://github.com/ethers-io/ethers.js/issues/3370
+		const gasEstimated = await ico.estimateGas.setPaymentToken("FOOBAR", '0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6', '0xDE31F8bFBD8c84b5360CFACCa3539B938dd78ae6', Math.floor(DEF_PRICE_BTC_IN_USD * 10**6), 18);
+		console.log("gasEstimated:", gasEstimated);
+		const GAS = await calcGas(gasEstimated);
+		console.log("gas:", GAS);
+
 		// deploy WBTC
 		// https://polygonscan.com/token/0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6
-		await sleep(300000);
-		await ico.setPaymentToken("WBTC", '0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6', '0xDE31F8bFBD8c84b5360CFACCa3539B938dd78ae6', Math.floor(DEF_PRICE_BTC_IN_USD * 10**6), 18);
+		const tx1 = await ico.setPaymentToken("WBTC", '0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6', '0xDE31F8bFBD8c84b5360CFACCa3539B938dd78ae6', Math.floor(DEF_PRICE_BTC_IN_USD * 10**6), 18, GAS);
+		await tx1.wait();
 		console.log("WBTC installed");
 
 		// deploy ETH
 		// https://polygonscan.com/token/0x7ceb23fd6bc0add59e62ac25578270cff1b9f619
-		await sleep(300000);
-		await ico.setPaymentToken("WETH", '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619', "0xF9680D99D6C9589e2a93a78A04A279e509205945", Math.floor(DEF_PRICE_ETH_IN_USD * 10**6), 18);
+		const tx2 = await ico.setPaymentToken("WETH", '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619', "0xF9680D99D6C9589e2a93a78A04A279e509205945", Math.floor(DEF_PRICE_ETH_IN_USD * 10**6), 18, GAS);
+		await tx2.wait();
 		console.log("WETH installed");
 
 		// deploy MATIC
-		await sleep(300000);
-		await ico.setPaymentToken("COIN", ico.address, "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0", Math.floor(DEF_PRICE_MATIC_IN_USD * 10**6), 18);
+		const tx3 = await ico.setPaymentToken("COIN", ico.address, "0xAB594600376Ec9fD91F8e885dADF0CE036862dE0", Math.floor(DEF_PRICE_MATIC_IN_USD * 10**6), 18, GAS);
+		await tx3.wait();
 		console.log("COIN installed");
 
 		// deploy BNB
 		// https://polygonscan.com/token/0x3BA4c387f786bFEE076A58914F5Bd38d668B42c3
-		await sleep(300000);
-		await ico.setPaymentToken("BNB", '0x3BA4c387f786bFEE076A58914F5Bd38d668B42c3', '0x82a6c4AF830caa6c97bb504425f6A66165C2c26e', Math.floor(DEF_PRICE_BNB_IN_USD * 10**6), 18);
+		const tx4 = await ico.setPaymentToken("BNB", '0x3BA4c387f786bFEE076A58914F5Bd38d668B42c3', '0x82a6c4AF830caa6c97bb504425f6A66165C2c26e', Math.floor(DEF_PRICE_BNB_IN_USD * 10**6), 18, GAS);
+		await tx4.wait();
 		console.log("BNB installed");
 
 		// deploy USDT
 		// https://polygonscan.com/token/0xc2132d05d31c914a87c6611c10748aeb04b58e8f
-		await sleep(300000);
-		await ico.setPaymentToken("USDT", '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', '0x0A6513e40db6EB1b165753AD52E80663aeA50545', Math.floor(DEF_PRICE_USDT_IN_USD * 10**6), 18);
+		const tx5 = await ico.setPaymentToken("USDT", '0xc2132d05d31c914a87c6611c10748aeb04b58e8f', '0x0A6513e40db6EB1b165753AD52E80663aeA50545', Math.floor(DEF_PRICE_USDT_IN_USD * 10**6), 18, GAS);
+		await tx5.wait();
 		console.log("USDT installed");
 
 	}
@@ -386,3 +395,32 @@ main().catch((error) => {
 	console.error(error);
 	process.exitCode = 1;
 });
+
+
+// ****************************************************************************
+// ***************************** Helper Functions *****************************
+// ****************************************************************************
+const sleep = (ms:any) => new Promise(r => setTimeout(r, ms));
+
+function parse(data: number) {
+	return ethers.utils.parseUnits(Math.ceil(data) + '', 'gwei');
+}
+
+async function calcGas(gasEstimated: any) {
+	let gas = {
+			gasLimit: gasEstimated, //.mul(110).div(100)
+			maxFeePerGas: ethers.BigNumber.from(40000000000),
+			maxPriorityFeePerGas: ethers.BigNumber.from(40000000000)
+	};
+	try {
+			const {data} = await axios({
+					method: 'get',
+					url: 'https://gasstation-mainnet.matic.network/v2'
+			});
+			gas.maxFeePerGas = parse(data.fast.maxFee);
+			gas.maxPriorityFeePerGas = parse(data.fast.maxPriorityFee);
+	} catch (error) {
+
+	}
+	return gas;
+};
